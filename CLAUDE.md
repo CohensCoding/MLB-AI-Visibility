@@ -71,7 +71,7 @@ Joined to the normalized scores to create the story:
 
 - **2025 MLB final standings** → on-field rank.
 - **MLB franchise valuations** → valuation rank.
-- **Social media followers / engagement** → reach context.
+- **Social media followers** (X + TikTok + Instagram) → reach context.
 
 Gap columns:
 
@@ -83,19 +83,24 @@ on-field or valuation rank — that is where the headlines live.
 
 ### Cross-reference source rules (locked)
 
-- **Valuation edition:** use the **2026** valuation edition (published March 2026),
-  **not** 2025.
-- **Single publisher:** pick **one** publisher and state it here; **CNBC and Forbes
-  2026 figures diverge** (Mike Ozanian, who originated the Forbes valuations, now
-  publishes via CNBC), so the choice must be documented and held constant. Match
-  whatever the 5W NFL precedent used (**likely Forbes**) for comparability.
-  → **Publisher in use: _TBD — confirm against the 5W NFL precedent and record here._**
-- **Standing rank:** use the **2025 final standings** (completed-season anchor),
-  not in-progress or projected records.
-- **No model memory:** every value in `standing_2025_rank`, `valuation_rank`, and
-  `social_followers` in [reference/teams.csv](reference/teams.csv) must be filled
-  from a dated primary source, recorded in that row's `source` and `date_pulled`
-  columns. Never fill these from model memory.
+Every value in `standing_2025_rank`, `valuation_rank`, and the four follower
+columns in [reference/teams.csv](reference/teams.csv) is filled from a **dated
+primary source — never from model memory** — with provenance recorded in the
+per-metric source columns (`standing_source`, `valuation_source`, `social_source`)
+and `date_pulled`.
+
+- **Standings** (`standing_2025_rank` · `standing_source`): **MLB 2025 final
+  standings**, ranked by wins; ties broken by farther 2025 postseason advancement,
+  then run differential. Completed-season anchor — not in-progress or projected.
+- **Valuation** (`valuation_rank` · `valuation_source`): **Forbes Most Valuable
+  Teams 2026** (published 2026-03-20). Use the **2026** edition, not 2025. One
+  publisher, held constant: **CNBC and Forbes 2026 figures diverge** (Mike Ozanian,
+  who originated the Forbes valuations, now publishes via CNBC) — **Forbes** is used
+  here to match the 5W NFL precedent.
+- **Social** (`followers_x` · `followers_tiktok` · `followers_instagram` ·
+  `followers_total` · `social_source`): **team official verified accounts on X,
+  TikTok, and Instagram**, captured **2026-05-29**. `followers_total` = the sum of
+  the three platform columns. Stored as plain integers (no thousands separators).
 
 ## Tiers
 

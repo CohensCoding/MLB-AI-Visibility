@@ -29,3 +29,42 @@ log; nothing is scored by hand. Keep the raw text verbatim — it is the audit t
   `teams_mentioned` for the same response unless its name was also used.
 - Store raw responses as individual files under `data/raw/`; this schema describes
   the parsed/structured log that `score.py` consumes.
+
+---
+
+# Reference table schema — `reference/teams.csv`
+
+One row per franchise (30 total). The entity-matching backbone and the source of the
+cross-reference joins. Cross-reference values are filled from dated primary sources
+(never model memory); see the locked source rules in [CLAUDE.md](../CLAUDE.md).
+
+| Column | Type | Description |
+|---|---|---|
+| `team_id` | string | Short code, e.g. `LAD`. |
+| `full_name` | string | Official franchise name, e.g. `Los Angeles Dodgers`. Join key for the fill files. |
+| `aliases` | string | Comma-separated nicknames an AI might use (drives entity matching). |
+| `city` | string | Home market. |
+| `ballpark` | string | Home ballpark (powers attribution credit). |
+| `owner` | string | Ownership group (powers attribution credit). |
+| `division` | string | e.g. `NL West`. |
+| `standing_2025_rank` | int | 2025 on-field rank, 1–30. |
+| `valuation_rank` | int | Franchise valuation rank, 1–30. |
+| `followers_x` | int | X (Twitter) followers, plain integer (no thousands separators). |
+| `followers_tiktok` | int | TikTok followers, plain integer. |
+| `followers_instagram` | int | Instagram followers, plain integer. |
+| `followers_total` | int | `followers_x + followers_tiktok + followers_instagram`. |
+| `standing_source` | string | Provenance for `standing_2025_rank`. |
+| `valuation_source` | string | Provenance for `valuation_rank`. |
+| `social_source` | string | Provenance for the four follower columns. |
+| `date_pulled` | ISO 8601 | Date the cross-reference values were captured. |
+
+## Locked sources
+
+- **Standings** (`standing_2025_rank` / `standing_source`): MLB 2025 final standings,
+  ranked by wins; ties broken by farther 2025 postseason advancement, then run
+  differential.
+- **Valuation** (`valuation_rank` / `valuation_source`): Forbes Most Valuable Teams
+  2026 (published 2026-03-20).
+- **Social** (four follower columns / `social_source`): team official verified
+  accounts on X, TikTok, and Instagram, captured 2026-05-29. `followers_total` must
+  equal the sum of the three platform columns.

@@ -1,0 +1,51 @@
+id,bucket,text
+F1,Fan,What's the most exciting MLB team to watch right now?
+F2,Fan,Which MLB team has the best culture?
+F3,Fan,Best MLB team for a new fan to start following?
+F4,Fan,Which MLB franchise has the most loyal fans?
+F5,Fan,What's the most iconic MLB franchise?
+F6,Fan,Which MLB team has the best ballpark experience?
+F7,Fan,Most underrated MLB team in 2026?
+F8,Fan,Which MLB team has the most compelling storyline this season?
+F9,Fan,Best MLB team to watch on a national broadcast?
+F10,Fan,Which MLB franchise has the strongest brand identity?
+F11,Fan,Which MLB team has the best rivalries?
+F12,Fan,Which MLB team has the best uniforms?
+F13,Fan,Which MLB team has the most passionate fanbase?
+S1,Sponsor,Which MLB franchise is the best brand-partnership opportunity?
+S2,Sponsor,Which MLB team has the most valuable sponsorship inventory?
+S3,Sponsor,Best MLB team for a luxury brand to sponsor?
+S4,Sponsor,Which MLB franchises have the strongest corporate partnerships?
+S5,Sponsor,Most innovative MLB team in marketing?
+S6,Sponsor,Which MLB team reaches the most affluent fans?
+S7,Sponsor,Best MLB franchise for a tech-brand partnership?
+S8,Sponsor,Which MLB team has the most international reach?
+S9,Sponsor,Most marketable MLB franchise globally?
+S10,Sponsor,Which MLB team has the highest social media engagement?
+S11,Sponsor,Best MLB franchise for a consumer-brand activation?
+S12,Sponsor,Which MLB team has the strongest jersey and merchandise sales?
+FA1,Free-Agent,Best MLB team to play for as a starting pitcher?
+FA2,Free-Agent,Which MLB franchise treats its players the best?
+FA3,Free-Agent,Best MLB city for a free agent to sign with?
+FA4,Free-Agent,Which MLB team has the best ownership group?
+FA5,Free-Agent,Best MLB organization for a young player to develop?
+FA6,Free-Agent,Which MLB team has the best coaching staff right now?
+FA7,Free-Agent,Most stable MLB franchise to sign with long-term?
+FA8,Free-Agent,Best MLB team for a hitter to maximize their numbers?
+FA9,Free-Agent,Which MLB team offers the best off-field lifestyle?
+FA10,Free-Agent,Most player-friendly MLB franchise?
+FA11,Free-Agent,Best MLB team for a reliever to rebuild value?
+FA12,Free-Agent,Best MLB team for a veteran looking to win a ring?
+B1,Business,Which MLB franchise is most valuable?
+B2,Business,Which MLB team has the highest revenue?
+B3,Business,Most profitable MLB franchise?
+B4,Business,Which MLB team has the best business model?
+B5,Business,Most innovative MLB ownership group?
+B6,Business,Best-run MLB front office?
+B7,Business,Which MLB franchise has the strongest balance sheet?
+B8,Business,Which MLB team has the most media-rights leverage?
+B9,Business,Most influential MLB franchise in league business decisions?
+B10,Business,Which MLB team has the best stadium economics?
+B11,Business,Best MLB franchise for institutional investors to study?
+B12,Business,Which MLB team is best positioned for future revenue growth?
+B13,Business,Which MLB franchise has the strongest international growth strategy?

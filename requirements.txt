@@ -1,0 +1,14 @@
+# Core
+pandas
+python-dotenv
+
+# Engine API clients
+openai            # ChatGPT
+anthropic         # Claude
+google-genai      # Gemini (Google AI Studio / Vertex)
+# Perplexity uses an OpenAI-compatible HTTP API; `openai` (above) or `requests` covers it.
+requests          # Perplexity / SERP provider HTTP calls
+
+# Google AI Overviews has no public API — capture via a SERP provider or manual.
+# Add your chosen SERP provider's client here when selected, e.g.:
+# google-search-results   # SerpApi

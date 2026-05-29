@@ -1,0 +1,33 @@
+rank,team,abbr,citation_share,total_points,fan_rank,sponsor_rank,free_agent_rank,business_rank,claude_rank,chatgpt_rank,perplexity_rank,gemini_rank,gaio_rank,first_place_count,appearances,perf_rank,perf_gap,val_rank,val_gap
+1,Dallas Cowboys,DAL,100.0,1907,1,1,10,1,1,1,1,1,1,295,503,19,18,1,0
+2,Kansas City Chiefs,KC,51.6,984,4,2,2,5,2,2,2,2,3,87,436,23,21,18,16
+3,New England Patriots,NE,39.5,754,7,5,7,2,7,5,4,5,2,1,420,2,-1,4,1
+4,Los Angeles Rams,LAR,39.4,752,9,3,9,3,3,3,3,3,4,61,324,4,0,2,-2
+5,Philadelphia Eagles,PHI,37.5,716,5,6,4,4,4,4,5,4,5,50,432,5,0,9,4
+6,San Francisco 49ers,SF,34.8,663,11,4,3,6,5,6,6,6,7,53,393,11,5,5,-1
+7,Pittsburgh Steelers,PIT,34.2,653,2,11,1,10,6,7,7,7,6,81,239,8,1,20,13
+8,Baltimore Ravens,BAL,16.1,307,13,13,5,9,8,8,8,8,8,1,159,7,-1,13,5
+9,Green Bay Packers,GB,13.1,250,3,19,19,22,9,9,9,9,9,25,104,9,0,15,6
+10,Miami Dolphins,MIA,9.4,180,25,10,6,19,11,11,12,11,10,30,60,21,11,11,1
+11,Buffalo Bills,BUF,9.4,179,8,9,11,14,10,10,11,10,14,1,131,6,-5,17,6
+12,Seattle Seahawks,SEA,9.2,175,6,8,20,21,12,12,10,12,12,20,65,1,-11,14,2
+13,New York Giants,NYG,6.9,132,21,7,15,8,13,13,13,13,11,0,126,30,17,3,-10
+14,Jacksonville Jaguars,JAX,5.4,103,28,12,18,7,14,14,15,14,13,15,43,24,10,26,12
+15,Houston Texans,HOU,4.3,82,12,17,14,18,16,15,18,15,15,9,36,14,-1,10,-5
+16,Cincinnati Bengals,CIN,3.9,74,31,31,8,31,17,17,16,17,16,14,16,27,11,31,15
+17,Las Vegas Raiders,LV,3.7,70,15,21,17,11,15,16,17,16,18,1,54,32,15,19,2
+18,Denver Broncos,DEN,3.3,63,10,18,25,20,18,21,14,18,17,6,23,3,-15,12,-6
+19,Detroit Lions,DET,2.8,53,20,30,12,13,21,18,19,19,20,0,53,10,-9,30,11
+20,Tampa Bay Buccaneers,TB,2.4,45,16,20,13,23,20,19,20,21,19,0,43,15,-5,16,-4
+21,Chicago Bears,CHI,2.2,42,14,15,23,16,19,20,21,20,21,0,26,20,-1,7,-14
+22,Los Angeles Chargers,LAC,0.8,16,23,25,16,26,23,24,24,22,24,0,16,17,-5,24,2
+23,Washington Commanders,WAS,0.8,15,17,16,24,17,22,23,23,23,22,0,15,16,-7,8,-15
+24,Carolina Panthers,CAR,0.8,15,18,27,30,28,25,25,22,25,25,0,13,12,-12,27,3
+25,Cleveland Browns,CLE,0.7,13,19,26,29,27,24,22,25,24,29,0,13,29,4,25,0
+26,Atlanta Falcons,ATL,0.3,5,22,22,26,12,27,26,28,26,23,0,5,18,-8,21,-5
+27,Tennessee Titans,TEN,0.1,2,30,29,21,30,31,31,26,27,31,0,2,28,1,29,2
+28,New York Jets,NYJ,0.0,0,24,14,22,15,26,27,27,28,26,0,0,31,3,6,-22
+29,New Orleans Saints,NO,0.0,0,26,23,27,24,28,28,29,29,27,0,0,26,-3,22,-7
+30,Indianapolis Colts,IND,0.0,0,27,24,28,25,29,29,30,30,28,0,0,25,-5,23,-7
+31,Arizona Cardinals,ARI,0.0,0,29,28,31,29,30,30,31,31,30,0,0,22,-9,28,-3
+32,Minnesota Vikings,MIN,0.0,0,32,32,32,32,32,32,32,32,32,0,0,13,-19,32,0

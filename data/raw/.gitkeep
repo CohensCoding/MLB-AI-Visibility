@@ -1,0 +1,4 @@
+# Verbatim engine responses live here — the audit trail.
+# One file per response (e.g. F1_chatgpt_pass1.json), capturing the full raw text,
+# timestamp, model version, engine, prompt id, and pass number.
+# Collection and scoring are separate stages: nothing here is interpreted or scored.

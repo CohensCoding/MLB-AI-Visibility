@@ -31,7 +31,7 @@ captured from real SERPs via a SERP provider or structured manual capture.
 - Normalize so the top team = **100.0**; others = `(raw / max raw) × 100`.
 
 Cross-references add the story: **Performance Gap** (citation rank − on-field rank)
-and **Value Gap** (citation rank − Forbes valuation rank). Teams fall into four
+and **Value Gap** (citation rank − valuation rank). Teams fall into four
 tiers: I Dominant (50+), II Established (20–49), III Present (1–19), IV Dead Zone (0.0).
 
 See [CLAUDE.md](CLAUDE.md) for the complete, locked rules.

@@ -70,16 +70,32 @@ and date + model version stamped on **every** call.
 Joined to the normalized scores to create the story:
 
 - **2025 MLB final standings** → on-field rank.
-- **Forbes 2025 MLB franchise valuations** → valuation rank.
+- **MLB franchise valuations** → valuation rank.
 - **Social media followers / engagement** → reach context.
 
 Gap columns:
 
 - **Performance Gap = Citation Share rank − on-field rank.**
-- **Value Gap = Citation Share rank − Forbes valuation rank.**
+- **Value Gap = Citation Share rank − valuation rank.**
 
 A positive gap means the team ranks worse in citations than it "should" given its
 on-field or valuation rank — that is where the headlines live.
+
+### Cross-reference source rules (locked)
+
+- **Valuation edition:** use the **2026** valuation edition (published March 2026),
+  **not** 2025.
+- **Single publisher:** pick **one** publisher and state it here; **CNBC and Forbes
+  2026 figures diverge** (Mike Ozanian, who originated the Forbes valuations, now
+  publishes via CNBC), so the choice must be documented and held constant. Match
+  whatever the 5W NFL precedent used (**likely Forbes**) for comparability.
+  → **Publisher in use: _TBD — confirm against the 5W NFL precedent and record here._**
+- **Standing rank:** use the **2025 final standings** (completed-season anchor),
+  not in-progress or projected records.
+- **No model memory:** every value in `standing_2025_rank`, `valuation_rank`, and
+  `social_followers` in [reference/teams.csv](reference/teams.csv) must be filled
+  from a dated primary source, recorded in that row's `source` and `date_pulled`
+  columns. Never fill these from model memory.
 
 ## Tiers
 

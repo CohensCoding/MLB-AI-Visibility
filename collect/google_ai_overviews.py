@@ -1,8 +1,11 @@
 """Google AI Overviews collector — captured from real Google SERPs via SerpApi.
 
 There is no public API for AI Overviews. We query Google through SerpApi
-(SERPAPI_API_KEY) with US/English locale and extract the AI Overview text.
-model_version is recorded as "SERP/AIO" since there is no model string to pin.
+(SERPAPI_API_KEY) with a pinned neutral US locale (location="United States",
+hl=en, gl=us) so results are not personalized to the operator's account/IP, and
+extract the AI Overview text. model_version is recorded as "SERP/AIO" since there
+is no model string to pin. AI Overviews are collected at 1 pass (Google serves
+one cached Overview per repeated query).
 
 Some SERPs return the AI Overview inline; others return only a `page_token` that
 must be redeemed against SerpApi's `google_ai_overview` engine — both handled.
@@ -17,6 +20,13 @@ from .config import ENGINES, get_key
 SPEC = ENGINES["gaio"]
 SEARCH_URL = "https://serpapi.com/search"
 MODEL_VERSION = "SERP/AIO"
+
+# Pinned neutral US locale so results are NOT personalized to the operator's
+# account/IP location. Documented in CLAUDE.md. `location` (canonical SerpApi
+# name) makes SerpApi generate the matching `uule`; hl/gl fix language + country.
+LOCATION = "United States"
+HL = "en"
+GL = "us"
 
 
 class GoogleAIOverviewsCollector:
@@ -49,7 +59,10 @@ class GoogleAIOverviewsCollector:
         return "\n".join(out).strip()
 
     def query(self, prompt_text: str) -> str:
-        data = self._get({"engine": "google", "q": prompt_text, "hl": "en", "gl": "us"})
+        data = self._get({
+            "engine": "google", "q": prompt_text,
+            "location": LOCATION, "hl": HL, "gl": GL,
+        })
         ai = data.get("ai_overview")
         if not ai:
             return ""  # no AI Overview surfaced for this query

@@ -51,6 +51,32 @@ class CollectorError(Exception):
     """Raised when a collector cannot produce a response after retries."""
 
 
+class HardQuotaError(CollectorError):
+    """Raised on a non-recoverable quota error (limit:0 / daily quota exhausted).
+
+    Distinct from a transient per-minute rate limit: retrying within a run cannot
+    succeed, so the orchestrator should skip the rest of that engine.
+    """
+
+
+def _is_hard_quota(exc: Exception) -> bool:
+    """True for quota errors that retrying within this run cannot clear.
+
+    Catches RESOURCE_EXHAUSTED with a zero limit or a *daily* quota violation,
+    while leaving transient per-minute rate limits to the normal retry path.
+    """
+    text = str(exc).lower()
+    if "resource_exhausted" not in text and "quota" not in text:
+        return False
+    return (
+        "limit: 0" in text
+        or "limit:0" in text
+        or "perday" in text
+        or "per day" in text
+        or "/day" in text
+    )
+
+
 def _is_rate_limit(exc: Exception) -> bool:
     name = type(exc).__name__.lower()
     text = str(exc).lower()
@@ -73,6 +99,11 @@ def with_retries(fn, *, max_retries: int = 5, base_delay: float = 2.0, label: st
         try:
             return fn()
         except Exception as exc:  # noqa: BLE001 - provider SDKs raise varied types
+            # Hard quota (limit:0 / daily) can't clear by retrying — fail fast.
+            if _is_hard_quota(exc):
+                raise HardQuotaError(
+                    f"{label}: hard quota, not retrying — {type(exc).__name__}: {exc}"
+                ) from exc
             attempt += 1
             transient = _is_rate_limit(exc)
             if attempt > max_retries or not transient:

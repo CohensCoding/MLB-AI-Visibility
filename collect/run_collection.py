@@ -1,9 +1,10 @@
 """Orchestrate the full 1,500-run collection matrix.
 
-100 prompts × 5 engines × 3 passes = 1,500 queries. Each query is one fresh API
-call (no history carried between calls); the verbatim response is appended as one
-row to data/capture_log.csv. Collection does NOT score — scoring is a separate
-stage (score.py) derived only from this raw log.
+4 API engines × 100 prompts × 3 passes (1,200) + Google AI Overviews × 100 × 1
+pass (100) = 1,300 queries. Each query is one fresh API call (no history carried
+between calls); the verbatim response is appended as one row to
+data/capture_log.csv. Collection does NOT score — scoring is a separate stage
+(score.py) derived only from this raw log.
 
 Resumable: rows already captured successfully are skipped, so a re-run only fills
 the gaps. Rate-limit retries and a progress counter are built in.
@@ -22,7 +23,7 @@ import sys
 from datetime import datetime, timezone
 
 from . import config
-from .base import CaptureRow, CollectorError, append_row, with_retries
+from .base import CaptureRow, CollectorError, HardQuotaError, append_row, with_retries
 
 CAPTURE_LOG = os.path.join("data", "capture_log.csv")
 PROMPTS_CSV = os.path.join("prompts", "prompts.csv")
@@ -91,26 +92,29 @@ def run(engine_keys: list[str] | None = None, limit: int | None = None) -> None:
         print(f"⚠ TEST BATCH: limited to the first {len(prompts)} prompts.")
 
     done = load_captured_ids()
-    total = len(engine_keys) * len(prompts) * config.PASSES
-    print(f"Matrix: {len(engine_keys)} engines × {len(prompts)} prompts × "
-          f"{config.PASSES} passes = {total} queries "
+    total = len(prompts) * sum(config.passes_for(e) for e in engine_keys)
+    print(f"Matrix: {len(prompts)} prompts × ["
+          f"{len(config.API_ENGINE_KEYS)} API engines × {config.PASSES} passes + "
+          f"AIO × {config.AIO_PASSES} pass] = {total} queries "
           f"(full matrix is {config.TOTAL_RUNS}). Already captured: {len(done)}.")
 
     n = 0
     for engine_key in engine_keys:
         spec = config.ENGINES[engine_key]
+        passes = config.passes_for(engine_key)
         try:
             collector = build_collector(engine_key)
         except Exception as exc:  # noqa: BLE001
             print(f"✗ Skipping {spec.display}: {exc}")
-            n += len(prompts) * config.PASSES
+            n += len(prompts) * passes
             continue
 
         model_version = getattr(collector, "model", None) or getattr(
             collector, "model_version", "UNKNOWN"
         )
-        for p in prompts:
-            for pass_number in range(1, config.PASSES + 1):
+        quota_hit = False
+        for pi, p in enumerate(prompts):
+            for pass_number in range(1, passes + 1):
                 n += 1
                 query_id = f"{spec.key}_{p['id']}_p{pass_number}"
                 if query_id in done:
@@ -122,6 +126,9 @@ def run(engine_keys: list[str] | None = None, limit: int | None = None) -> None:
                         lambda c=collector, t=p["text"]: c.query(t), label=label
                     )
                     captured = True
+                except HardQuotaError as exc:
+                    print(f"  ⨯ {label}: {exc}")
+                    text, captured, quota_hit = "", False, True
                 except CollectorError as exc:
                     print(f"  ✗ {label}: {exc}")
                     text, captured = "", False
@@ -144,6 +151,14 @@ def run(engine_keys: list[str] | None = None, limit: int | None = None) -> None:
                 )
                 flag = "✓" if captured else "✗"
                 print(f"{flag} {label} ({len(text)} chars)")
+                if quota_hit:
+                    break
+            if quota_hit:
+                remaining = passes - pass_number + (len(prompts) - 1 - pi) * passes
+                n += remaining
+                print(f"  ⨯ {spec.display}: hard quota — skipping remaining "
+                      f"{remaining} queries for this engine. Fix billing/quota and re-run.")
+                break
 
     print(f"Done. Capture log: {CAPTURE_LOG}")
 

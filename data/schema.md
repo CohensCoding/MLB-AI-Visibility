@@ -11,7 +11,7 @@ scored by hand. Keep the raw text verbatim — it is the audit trail.
 | `prompt_id` | string | Prompt id, e.g. `fan_01` (matches prompts.csv). |
 | `prompt_text` | string | The exact prompt sent. |
 | `engine` | string | `ChatGPT`, `Claude`, `Perplexity`, `Gemini`, or `Google AI Overviews`. |
-| `pass_number` | int | 1, 2, or 3. |
+| `pass_number` | int | 1–3 for the 4 API engines; always 1 for Google AI Overviews (single cached Overview per query). |
 | `model_version` | string | Exact pinned model string from `.env` (e.g. `gpt-4o`); `SERP/AIO` for AI Overviews. Model drift is real. |
 | `date_run` | ISO 8601 | UTC timestamp of the call. |
 | `raw_response_text` | string | The full, verbatim response. Never edited. |

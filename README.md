@@ -13,20 +13,24 @@ in [spec/MLB-Citation-Share-Index-Build-Playbook.md](spec/MLB-Citation-Share-Ind
 > place; run `python -m collect.test_connection` to verify keys + pinned models,
 > then `python -m collect.run_collection` to fill the matrix.
 
-## The run matrix — 1,500 queries
+## The run matrix — 1,300 queries
 
-**5 engines × 100 prompts × 3 passes = 1,500 queries.**
+**4 API engines × 100 prompts × 3 passes (1,200) + Google AI Overviews × 100
+prompts × 1 pass (100) = 1,300 queries.**
 
 - **Engines:** ChatGPT, Claude, Perplexity, Gemini, Google AI Overviews.
 - **Prompts (100):** 8 categories — AI-First Fan 15, Fan Experience & Tickets 13,
   Sponsorship & Brand Partnership 15, Audience & Reach 12, Market Relevance &
   Competitive Standing 12, Brand Identity & Narrative 13, Business & Franchise
   Strength 12, Talent & Org Reputation 8.
-- **Passes:** 3 per prompt per engine, to control for output variance.
+- **Passes:** 3 per prompt for the 4 API engines; **1 for Google AI Overviews**
+  (Google serves one cached Overview per repeated query, so extra passes add no
+  variance).
 
 Collection is via provider APIs (OpenAI, Anthropic, Google Gemini, Perplexity),
 one fresh call per query with web search / grounding on. **Google AI Overviews has
-no public API** and is captured from real Google SERPs via SerpApi. API keys and
+no public API** and is captured from real Google SERPs via SerpApi, pinned to a
+neutral US locale (`location="United States"`, `hl=en`, `gl=us`). API keys and
 pinned model strings are read from `.env`; see [CLAUDE.md](CLAUDE.md) for the locked
 collection method.
 

@@ -32,21 +32,27 @@ Applied per response, derived only from the raw logs — never scored by hand.
 
 ## Normalization
 
-- Sum each team's raw points across all 1,500 queries → raw aggregate.
+- Sum each team's raw points across all 1,300 queries → raw aggregate.
 - Top team is anchored to **100.0**.
 - Every other team = `(team raw / max raw) × 100`.
 - This preserves the spread while fixing the top (in the NFL version the leader
   scored 100.0 and #2 landed at 51.6).
 
-## Run matrix — 1,500 queries
+## Run matrix — 1,300 queries
 
-**5 engines × 100 prompts × 3 passes = 1,500 queries.**
+**4 API engines × 100 prompts × 3 passes (1,200) + Google AI Overviews × 100
+prompts × 1 pass (100) = 1,300 queries.**
 
 | Dimension | Values |
 |---|---|
 | Engines (5) | ChatGPT, Claude, Perplexity, Gemini, Google AI Overviews |
 | Prompts (100) | See [prompts/prompts.csv](prompts/prompts.csv) — 8 categories |
-| Passes (3) | Repeat each prompt 3× per engine to control output variance |
+| Passes | **3** per prompt for the 4 API engines; **1** for Google AI Overviews |
+
+**Why AIO = 1 pass:** Google serves a single cached AI Overview per repeated
+query, so passes 2 and 3 come back byte-identical and add no variance signal
+(verified in the test batch). The 4 API engines stay at 3 passes to control for
+genuine output variance.
 
 ### Collection method — API (locked)
 
@@ -68,8 +74,14 @@ verbatim to [data/capture_log.csv](data/capture_log.csv).
   so a refresh is reproducible from the recorded pin alone.
 - **Search is on** for every engine (the `search_enabled` column records this).
 - **Consistency controls:** fresh call per query, no conversation memory,
-  US/English locale (`hl=en`, `gl=us` for SERPs), and date + model version stamped
-  on **every** call.
+  US/English locale, and date + model version stamped on **every** call.
+- **Pinned AIO location:** Google AI Overviews are captured via SerpApi with a
+  fixed neutral US locale — **`location="United States"`, `hl=en`, `gl=us`** — so
+  Overviews are **not** personalized to the operator's account/IP (e.g. California).
+- **Fail-fast on hard quota:** a `RESOURCE_EXHAUSTED` with `limit: 0` or a *daily*
+  quota violation is not retried (it can't clear within a run); the pipeline logs
+  it and skips the rest of that engine. Transient per-minute rate limits still get
+  exponential-backoff retries.
 - **Deprecated:** the prior **manual capture** approach is superseded by this API
   pipeline. The hand-captured ChatGPT responses are **retained verbatim** at
   `data/capture_log_chatgpt.csv` (old 50-prompt/bucket schema, model

@@ -20,10 +20,18 @@ except ImportError:  # python-dotenv not installed; rely on real env vars
 
 # The full run matrix.
 PROMPT_COUNT = 100
-PASSES = 3
+PASSES = 3        # passes per prompt for the 4 API engines
+AIO_PASSES = 1    # Google AI Overviews: 1 pass — Google serves one cached Overview
+                  # per repeated query, so p2/p3 would be byte-identical (no signal).
 API_ENGINE_KEYS = ["openai", "anthropic", "gemini", "perplexity"]
 ALL_ENGINE_KEYS = API_ENGINE_KEYS + ["gaio"]
-TOTAL_RUNS = 5 * PROMPT_COUNT * PASSES  # 1,500
+# 4 API engines × 100 × 3 (1,200) + AIO × 100 × 1 (100) = 1,300
+TOTAL_RUNS = len(API_ENGINE_KEYS) * PROMPT_COUNT * PASSES + PROMPT_COUNT * AIO_PASSES
+
+
+def passes_for(engine_key: str) -> int:
+    """Number of passes for an engine: AIO = 1, all others = PASSES."""
+    return AIO_PASSES if engine_key == "gaio" else PASSES
 
 
 @dataclass(frozen=True)

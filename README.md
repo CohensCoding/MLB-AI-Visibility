@@ -9,19 +9,26 @@ results are directly comparable to that precedent.
 The locked methodology is in **[CLAUDE.md](CLAUDE.md)**. The full build guide is
 in [spec/MLB-Citation-Share-Index-Build-Playbook.md](spec/MLB-Citation-Share-Index-Build-Playbook.md).
 
-> **Status: scaffold only.** Structure is in place; no data has been collected and
-> no API-calling code is implemented yet.
+> **Status: collection pipeline built, not yet run.** The API collectors are in
+> place; run `python -m collect.test_connection` to verify keys + pinned models,
+> then `python -m collect.run_collection` to fill the matrix.
 
-## The run matrix — 750 queries
+## The run matrix — 1,500 queries
 
-**5 engines × 50 prompts × 3 passes = 750 queries.**
+**5 engines × 100 prompts × 3 passes = 1,500 queries.**
 
 - **Engines:** ChatGPT, Claude, Perplexity, Gemini, Google AI Overviews.
-- **Prompts (50):** 4 buckets — Fan 13, Sponsor 12, Free-Agent 12, Business 13.
+- **Prompts (100):** 8 categories — AI-First Fan 15, Fan Experience & Tickets 13,
+  Sponsorship & Brand Partnership 15, Audience & Reach 12, Market Relevance &
+  Competitive Standing 12, Brand Identity & Narrative 13, Business & Franchise
+  Strength 12, Talent & Org Reputation 8.
 - **Passes:** 3 per prompt per engine, to control for output variance.
 
-Four engines run via public APIs; **Google AI Overviews has no public API** and is
-captured from real SERPs via a SERP provider or structured manual capture.
+Collection is via provider APIs (OpenAI, Anthropic, Google Gemini, Perplexity),
+one fresh call per query with web search / grounding on. **Google AI Overviews has
+no public API** and is captured from real Google SERPs via SerpApi. API keys and
+pinned model strings are read from `.env`; see [CLAUDE.md](CLAUDE.md) for the locked
+collection method.
 
 ## Scoring (summary)
 
@@ -39,25 +46,26 @@ See [CLAUDE.md](CLAUDE.md) for the complete, locked rules.
 ## Pipeline
 
 ```
-collect/   → data/raw/   → score.py        → generate/
-(query the    (verbatim     (parse, apply     (ranked index CSV
- engines)      audit trail)   point rules,      + 30 one-pagers)
-                              aggregate,
-                              normalize)
+collect/   → data/capture_log.csv → score.py        → generate/
+(API calls    (verbatim               (parse, apply     (ranked index CSV
+ + SERP,       audit trail,            point rules,      + 30 one-pagers)
+ search on)    one row per query)      aggregate,
+                                       normalize)
 ```
 
-Collection and scoring are **separate stages** to avoid bias.
+Collection and scoring are **separate stages** to avoid bias. Run
+`python -m collect.test_connection` first, then `python -m collect.run_collection`.
 
 ## Layout
 
 | Path | Purpose |
 |---|---|
 | [CLAUDE.md](CLAUDE.md) | Locked methodology spec — source of truth. |
-| [prompts/prompts.csv](prompts/prompts.csv) | The 50 locked prompts (id, bucket, text). |
+| [prompts/prompts.csv](prompts/prompts.csv) | The 100 locked prompts (id, category, text). |
 | [reference/teams.csv](reference/teams.csv) | 30-team entity-matching backbone (aliases, ballpark, owner, division, +cross-ref columns to fill). |
-| [data/schema.md](data/schema.md) | One-row-per-response data schema. |
-| `data/raw/` | Verbatim engine responses — the audit trail. |
-| `collect/` | One module per engine; reads keys from `.env`. |
+| [data/schema.md](data/schema.md) | Capture-log + reference-table schemas. |
+| `data/capture_log.csv` | Verbatim API/SERP responses — the audit trail (one row per query). |
+| `collect/` | API collection pipeline (config, per-engine collectors, `run_collection`, `test_connection`); reads keys + model pins from `.env`. |
 | `score.py` | Parse → score → aggregate → normalize. |
 | `generate/` | Emit the index CSV + 30 one-pagers. |
 | `spec/` | Source playbook + NFL reference CSV (inputs). |

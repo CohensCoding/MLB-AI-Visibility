@@ -1,34 +1,35 @@
-# Data schema — one row per query response
+# Capture-log schema — `data/capture_log.csv`
 
-Every engine call produces exactly one row. Scoring is derived entirely from this
-log; nothing is scored by hand. Keep the raw text verbatim — it is the audit trail.
+Every engine call produces exactly one row, appended by the collection pipeline
+(`collect/run_collection.py`). Scoring is derived entirely from this log; nothing is
+scored by hand. Keep the raw text verbatim — it is the audit trail.
 
 | Column | Type | Description |
 |---|---|---|
-| `query_id` | string | Unique id for this response, e.g. `F1_chatgpt_pass1`. |
-| `bucket` | string | One of: `Fan`, `Sponsor`, `Free-Agent`, `Business`. |
-| `prompt_text` | string | The exact prompt sent (matches [prompts/prompts.csv](../prompts/prompts.csv)). |
-| `engine` | string | One of: `ChatGPT`, `Claude`, `Perplexity`, `Gemini`, `Google AI Overviews`. |
-| `model_version` | string | Exact model/version used (e.g. `gpt-4o-2024-08-06`). Model drift is real. |
+| `query_id` | string | Unique id, `<engine>_<prompt_id>_p<pass>`, e.g. `chatgpt_fan_01_p1`. |
+| `category` | string | Prompt category (one of the 8 — see [prompts/prompts.csv](../prompts/prompts.csv)). |
+| `prompt_id` | string | Prompt id, e.g. `fan_01` (matches prompts.csv). |
+| `prompt_text` | string | The exact prompt sent. |
+| `engine` | string | `ChatGPT`, `Claude`, `Perplexity`, `Gemini`, or `Google AI Overviews`. |
 | `pass_number` | int | 1, 2, or 3. |
-| `date_run` | ISO 8601 | Date/time the call was made. |
+| `model_version` | string | Exact pinned model string from `.env` (e.g. `gpt-4o`); `SERP/AIO` for AI Overviews. Model drift is real. |
+| `date_run` | ISO 8601 | UTC timestamp of the call. |
 | `raw_response_text` | string | The full, verbatim response. Never edited. |
-| `teams_mentioned` | list | Ordered list of `team_id`s detected, by position in the text. |
-| `first_team` | string | `team_id` named first → 5 pts. |
-| `second_team` | string | `team_id` named second → 3 pts. |
-| `other_teams` | list | Remaining mentioned `team_id`s → 1 pt each. |
-| `attribution_only_teams` | list | `team_id`s credited via ballpark/owner/logo with no team name → 1 pt each. |
+| `search_enabled` | bool | Whether web search / grounding was on for the call (always true in V1). |
+| `captured` | bool | True if the response was captured successfully; False rows are gaps to re-run. |
 
 ## Notes
 
-- **One score per team per response** — highest-value mention wins; do not stack.
-- `teams_mentioned` is the ordered union that drives `first_team` / `second_team` /
-  `other_teams`. Entity resolution uses the alias/ballpark/owner strings in
-  [reference/teams.csv](../reference/teams.csv).
-- A team appearing in `attribution_only_teams` should not also appear in
-  `teams_mentioned` for the same response unless its name was also used.
-- Store raw responses as individual files under `data/raw/`; this schema describes
-  the parsed/structured log that `score.py` consumes.
+- **One fresh call per query**, no history carried between calls. The pipeline is
+  resumable: rows with `captured == true` are skipped on re-run.
+- Scoring-derived fields (`teams_mentioned`, `first_team`, `second_team`,
+  `other_teams`, `attribution_only_teams`) are **not** stored here — they are
+  produced downstream by `score.py` from `raw_response_text`, using the
+  alias/ballpark/owner strings in [reference/teams.csv](../reference/teams.csv).
+- **One score per team per response** — highest-value mention wins; do not stack
+  (applied at scoring time, not collection time).
+- `data/raw/` is reserved for any out-of-band raw captures; the primary audit
+  trail is `data/capture_log.csv`.
 
 ---
 

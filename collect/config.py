@@ -1,0 +1,53 @@
+"""Central configuration for the collection pipeline.
+
+Loads .env (via python-dotenv) and exposes the engine registry. API keys AND
+pinned model strings are read from the environment — never hardcoded (so a refresh
+run is reproducible from the recorded model_version alone).
+"""
+
+from __future__ import annotations
+
+import os
+from dataclasses import dataclass
+
+try:
+    from dotenv import load_dotenv
+
+    load_dotenv()
+except ImportError:  # python-dotenv not installed; rely on real env vars
+    pass
+
+
+# The full run matrix.
+PROMPT_COUNT = 100
+PASSES = 3
+API_ENGINE_KEYS = ["openai", "anthropic", "gemini", "perplexity"]
+ALL_ENGINE_KEYS = API_ENGINE_KEYS + ["gaio"]
+TOTAL_RUNS = 5 * PROMPT_COUNT * PASSES  # 1,500
+
+
+@dataclass(frozen=True)
+class EngineSpec:
+    key: str            # internal slug, used in query_id
+    display: str        # engine label written to capture_log.csv
+    key_var: str        # .env var holding the API key
+    model_var: str | None  # .env var holding the pinned model string (None for AIO)
+
+
+ENGINES: dict[str, EngineSpec] = {
+    "openai": EngineSpec("chatgpt", "ChatGPT", "OPENAI_API_KEY", "OPENAI_MODEL"),
+    "anthropic": EngineSpec("claude", "Claude", "ANTHROPIC_API_KEY", "ANTHROPIC_MODEL"),
+    "gemini": EngineSpec("gemini", "Gemini", "GEMINI_API_KEY", "GEMINI_MODEL"),
+    "perplexity": EngineSpec("perplexity", "Perplexity", "PERPLEXITY_API_KEY", "PERPLEXITY_MODEL"),
+    "gaio": EngineSpec("gaio", "Google AI Overviews", "SERPAPI_API_KEY", None),
+}
+
+
+def get_key(spec: EngineSpec) -> str | None:
+    return os.environ.get(spec.key_var) or None
+
+
+def get_model(spec: EngineSpec) -> str | None:
+    if spec.model_var is None:
+        return None
+    return os.environ.get(spec.model_var) or None

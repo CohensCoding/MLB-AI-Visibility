@@ -32,38 +32,63 @@ Applied per response, derived only from the raw logs — never scored by hand.
 
 ## Normalization
 
-- Sum each team's raw points across all 750 queries → raw aggregate.
+- Sum each team's raw points across all 1,500 queries → raw aggregate.
 - Top team is anchored to **100.0**.
 - Every other team = `(team raw / max raw) × 100`.
 - This preserves the spread while fixing the top (in the NFL version the leader
   scored 100.0 and #2 landed at 51.6).
 
-## Run matrix — 750 queries
+## Run matrix — 1,500 queries
 
-**5 engines × 50 prompts × 3 passes = 750 queries.**
+**5 engines × 100 prompts × 3 passes = 1,500 queries.**
 
 | Dimension | Values |
 |---|---|
 | Engines (5) | ChatGPT, Claude, Perplexity, Gemini, Google AI Overviews |
-| Prompts (50) | See [prompts/prompts.csv](prompts/prompts.csv) |
+| Prompts (100) | See [prompts/prompts.csv](prompts/prompts.csv) — 8 categories |
 | Passes (3) | Repeat each prompt 3× per engine to control output variance |
 
-Engine access note: ChatGPT, Claude, Perplexity, and Gemini have public APIs.
-**Google AI Overviews has no public API** and must be captured from real SERPs
-via a SERP provider or structured manual capture. Document the method per engine.
+### Collection method — API (locked)
 
-Consistency controls: fresh session / no memory per query, personalization
-stripped where possible, fixed US/English locale, recorded temperature/settings,
-and date + model version stamped on **every** call.
+Collection is via **provider APIs**, programmatically, one fresh call per query
+with **no history carried between calls**. Run with `python -m collect.run_collection`
+(pre-flight: `python -m collect.test_connection`). Each response is appended
+verbatim to [data/capture_log.csv](data/capture_log.csv).
 
-## Prompt buckets (50 total)
+| Engine | Access | Model pin (.env) | Web search / grounding |
+|---|---|---|---|
+| ChatGPT | OpenAI Responses API | `OPENAI_MODEL` | **on** — `web_search` tool |
+| Claude | Anthropic Messages API | `ANTHROPIC_MODEL` | **on** — `web_search` tool |
+| Gemini | Google AI Studio | `GEMINI_MODEL` | **on** — Google Search grounding |
+| Perplexity | Sonar API | `PERPLEXITY_MODEL` | **on** — Sonar searches natively |
+| Google AI Overviews | **No public API** — captured from real Google SERPs via SerpApi (`SERPAPI_API_KEY`) | n/a (`model_version` = `SERP/AIO`) | **on** — live SERP |
 
-| Bucket | Count |
+- **Locked model per engine:** the exact model string is read from the `*_MODEL`
+  var in `.env` and **written to `model_version` on every row** — never hardcoded —
+  so a refresh is reproducible from the recorded pin alone.
+- **Search is on** for every engine (the `search_enabled` column records this).
+- **Consistency controls:** fresh call per query, no conversation memory,
+  US/English locale (`hl=en`, `gl=us` for SERPs), and date + model version stamped
+  on **every** call.
+- **Deprecated:** the prior **manual capture** approach is superseded by this API
+  pipeline. The hand-captured ChatGPT responses are **retained verbatim** at
+  `data/capture_log_chatgpt.csv` (old 50-prompt/bucket schema, model
+  `GPT-5.5 Instant`, captured 2026-05-29) — kept for history, **not** consumed by
+  the API pipeline or `score.py`. Do not delete; the manual path may return only if
+  we ever need an engine without an API.
+
+## Prompt categories (100 total)
+
+| Category | Count |
 |---|---|
-| Fan | 13 |
-| Sponsor | 12 |
-| Free-Agent | 12 |
-| Business | 13 |
+| AI-First Fan | 15 |
+| Fan Experience & Tickets | 13 |
+| Sponsorship & Brand Partnership | 15 |
+| Audience & Reach | 12 |
+| Market Relevance & Competitive Standing | 12 |
+| Brand Identity & Narrative | 13 |
+| Business & Franchise Strength | 12 |
+| Talent & Org Reputation | 8 |
 
 ## Cross-reference layers
 
@@ -122,12 +147,13 @@ preserve trend integrity.
 
 ```
 spec/         Source playbook + NFL reference CSV (read-only inputs)
-prompts/      prompts.csv — the 50 locked prompts (id, bucket, text)
+prompts/      prompts.csv — the 100 locked prompts (id, category, text)
 reference/    teams.csv — 30-team entity-matching backbone (aliases, ballpark, owner…)
-data/raw/     Verbatim engine responses — the audit trail (one file per response)
-data/schema.md   The one-row-per-response data schema
-collect/      One stub module per engine; reads API keys from .env (calls NOT yet implemented)
-score.py      Stub: parse raw logs → apply point rules → aggregate by team/bucket/engine → normalize
+data/capture_log.csv  Verbatim API/SERP responses — the audit trail (one row per query)
+data/raw/     Reserved for any out-of-band raw captures
+data/schema.md   The capture-log + reference-table schemas
+collect/      API collection pipeline (config + per-engine collectors + run_collection + test_connection)
+score.py      Stub: parse capture log → apply point rules → aggregate by team/category/engine → normalize
 generate/     Stub: emit the ranked index CSV + 30 per-team one-pagers
 ```
 

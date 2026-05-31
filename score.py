@@ -1,7 +1,8 @@
 """Parse the raw response logs, apply the point rules, aggregate, and normalize.
 
 This is the scoring stage — kept strictly separate from collection (CLAUDE.md).
-Scoring is derived ONLY from the raw logs in data/raw/; never scored by hand.
+Scoring is derived ONLY from the raw capture log (data/capture_log.csv); never
+scored by hand. Aggregation is by team, by category, and by engine.
 
 Point rules (CLAUDE.md §Scoring rules):
     1st team named            -> 5 pts
@@ -57,9 +58,9 @@ def score_response(teams, attribution_only):
 
 
 def aggregate(raw_log, reference_table):
-    """Sum points per team overall, and separately per bucket and per engine.
+    """Sum points per team overall, and separately per category and per engine.
 
-    Returns the running totals needed for the index and the one-pager bucket cuts.
+    Returns the running totals needed for the index and the one-pager category cuts.
     TODO: load raw_log, run extract/score per row, accumulate.
     """
     raise NotImplementedError
@@ -73,8 +74,11 @@ def normalize(team_totals):
     raise NotImplementedError
 
 
+CAPTURE_LOG = "data/capture_log.csv"
+
+
 def main():
-    # TODO: load data/raw + reference/teams.csv, aggregate, normalize,
+    # TODO: load data/capture_log.csv + reference/teams.csv, aggregate, normalize,
     # and write a scored dataset for generate/ to consume.
     raise NotImplementedError("score.py is a scaffold — scoring not implemented yet.")
 

@@ -1,28 +1,44 @@
-"""ChatGPT collector — OpenAI API.
+"""ChatGPT collector — OpenAI Responses API with the web_search tool enabled.
 
-Reads OPENAI_API_KEY from .env. The API model can differ from the consumer
-product with browsing; pick one and record `model_version` on every call.
-
-STUB ONLY — no API calls implemented yet.
+Reads OPENAI_API_KEY and OPENAI_MODEL from .env. One fresh call per query; no
+conversation state is carried between calls.
 """
 
 from __future__ import annotations
 
-import os
+from .config import ENGINES, get_key, get_model
 
-from .base import EngineCollector, RawResponse
+SPEC = ENGINES["openai"]
 
 
-class ChatGPTCollector(EngineCollector):
-    name = "ChatGPT"
-    model_version = "TODO-pin-exact-openai-model"
+class ChatGPTCollector:
+    display = SPEC.display
+    search_enabled = True
 
     def __init__(self) -> None:
-        self.api_key = os.environ.get("OPENAI_API_KEY")
-        # TODO: instantiate the OpenAI client with a fresh session per call.
-        raise NotImplementedError("ChatGPT collector not implemented yet (scaffold only).")
+        from openai import OpenAI  # lazy import
 
-    def query(self, query_id: str, bucket: str, prompt_text: str, pass_number: int) -> RawResponse:
-        # TODO: call the OpenAI Chat Completions / Responses API, US/English,
-        # fixed temperature, no personalization; capture verbatim text + timestamp.
-        raise NotImplementedError
+        key = get_key(SPEC)
+        if not key:
+            raise RuntimeError(f"{SPEC.key_var} is not set in .env")
+        self.model = get_model(SPEC)
+        if not self.model:
+            raise RuntimeError(f"{SPEC.model_var} is not set in .env")
+        self._client = OpenAI(api_key=key)
+
+    def query(self, prompt_text: str) -> str:
+        # The Responses API web-search tool type was renamed; try the current name
+        # and fall back to the preview name so this works across SDK versions.
+        for tool_type in ("web_search", "web_search_preview"):
+            try:
+                resp = self._client.responses.create(
+                    model=self.model,
+                    input=prompt_text,
+                    tools=[{"type": tool_type}],
+                )
+                return resp.output_text or ""
+            except Exception as exc:  # noqa: BLE001
+                if tool_type == "web_search" and "web_search" in str(exc):
+                    continue  # retry with the preview tool name
+                raise
+        return ""

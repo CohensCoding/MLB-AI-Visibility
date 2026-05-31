@@ -1,28 +1,37 @@
-"""Claude collector — Anthropic API.
+"""Claude collector — Anthropic Messages API with the web_search tool enabled.
 
-Reads ANTHROPIC_API_KEY from .env. Record the exact model id as `model_version`
-on every call.
-
-STUB ONLY — no API calls implemented yet.
+Reads ANTHROPIC_API_KEY and ANTHROPIC_MODEL from .env. One fresh call per query.
 """
 
 from __future__ import annotations
 
-import os
+from .config import ENGINES, get_key, get_model
 
-from .base import EngineCollector, RawResponse
+SPEC = ENGINES["anthropic"]
 
 
-class ClaudeCollector(EngineCollector):
-    name = "Claude"
-    model_version = "TODO-pin-exact-anthropic-model"
+class ClaudeCollector:
+    display = SPEC.display
+    search_enabled = True
 
     def __init__(self) -> None:
-        self.api_key = os.environ.get("ANTHROPIC_API_KEY")
-        # TODO: instantiate the Anthropic client with a fresh session per call.
-        raise NotImplementedError("Claude collector not implemented yet (scaffold only).")
+        import anthropic  # lazy import
 
-    def query(self, query_id: str, bucket: str, prompt_text: str, pass_number: int) -> RawResponse:
-        # TODO: call the Anthropic Messages API, US/English, fixed temperature,
-        # no personalization; capture verbatim text + timestamp.
-        raise NotImplementedError
+        key = get_key(SPEC)
+        if not key:
+            raise RuntimeError(f"{SPEC.key_var} is not set in .env")
+        self.model = get_model(SPEC)
+        if not self.model:
+            raise RuntimeError(f"{SPEC.model_var} is not set in .env")
+        self._client = anthropic.Anthropic(api_key=key)
+
+    def query(self, prompt_text: str) -> str:
+        resp = self._client.messages.create(
+            model=self.model,
+            max_tokens=2048,
+            messages=[{"role": "user", "content": prompt_text}],
+            tools=[{"type": "web_search_20250305", "name": "web_search", "max_uses": 5}],
+        )
+        # Concatenate all text blocks (tool-use/result blocks are skipped).
+        parts = [b.text for b in resp.content if getattr(b, "type", None) == "text"]
+        return "".join(parts)

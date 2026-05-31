@@ -1,51 +1,101 @@
-id,bucket,text
-F1,Fan,What's the most exciting MLB team to watch right now?
-F2,Fan,Which MLB team has the best culture?
-F3,Fan,Best MLB team for a new fan to start following?
-F4,Fan,Which MLB franchise has the most loyal fans?
-F5,Fan,What's the most iconic MLB franchise?
-F6,Fan,Which MLB team has the best ballpark experience?
-F7,Fan,Most underrated MLB team in 2026?
-F8,Fan,Which MLB team has the most compelling storyline this season?
-F9,Fan,Best MLB team to watch on a national broadcast?
-F10,Fan,Which MLB franchise has the strongest brand identity?
-F11,Fan,Which MLB team has the best rivalries?
-F12,Fan,Which MLB team has the best uniforms?
-F13,Fan,Which MLB team has the most passionate fanbase?
-S1,Sponsor,Which MLB franchise is the best brand-partnership opportunity?
-S2,Sponsor,Which MLB team has the most valuable sponsorship inventory?
-S3,Sponsor,Best MLB team for a luxury brand to sponsor?
-S4,Sponsor,Which MLB franchises have the strongest corporate partnerships?
-S5,Sponsor,Most innovative MLB team in marketing?
-S6,Sponsor,Which MLB team reaches the most affluent fans?
-S7,Sponsor,Best MLB franchise for a tech-brand partnership?
-S8,Sponsor,Which MLB team has the most international reach?
-S9,Sponsor,Most marketable MLB franchise globally?
-S10,Sponsor,Which MLB team has the highest social media engagement?
-S11,Sponsor,Best MLB franchise for a consumer-brand activation?
-S12,Sponsor,Which MLB team has the strongest jersey and merchandise sales?
-FA1,Free-Agent,Best MLB team to play for as a starting pitcher?
-FA2,Free-Agent,Which MLB franchise treats its players the best?
-FA3,Free-Agent,Best MLB city for a free agent to sign with?
-FA4,Free-Agent,Which MLB team has the best ownership group?
-FA5,Free-Agent,Best MLB organization for a young player to develop?
-FA6,Free-Agent,Which MLB team has the best coaching staff right now?
-FA7,Free-Agent,Most stable MLB franchise to sign with long-term?
-FA8,Free-Agent,Best MLB team for a hitter to maximize their numbers?
-FA9,Free-Agent,Which MLB team offers the best off-field lifestyle?
-FA10,Free-Agent,Most player-friendly MLB franchise?
-FA11,Free-Agent,Best MLB team for a reliever to rebuild value?
-FA12,Free-Agent,Best MLB team for a veteran looking to win a ring?
-B1,Business,Which MLB franchise is most valuable?
-B2,Business,Which MLB team has the highest revenue?
-B3,Business,Most profitable MLB franchise?
-B4,Business,Which MLB team has the best business model?
-B5,Business,Most innovative MLB ownership group?
-B6,Business,Best-run MLB front office?
-B7,Business,Which MLB franchise has the strongest balance sheet?
-B8,Business,Which MLB team has the most media-rights leverage?
-B9,Business,Most influential MLB franchise in league business decisions?
-B10,Business,Which MLB team has the best stadium economics?
-B11,Business,Best MLB franchise for institutional investors to study?
-B12,Business,Which MLB team is best positioned for future revenue growth?
-B13,Business,Which MLB franchise has the strongest international growth strategy?
+id,category,text
+fan_01,AI-First Fan,"If I'm new to baseball, which MLB team should I start following?"
+fan_02,AI-First Fan,"What's the most exciting MLB team to watch in 2026?"
+fan_03,AI-First Fan,"Which MLB team is the most fun to follow if I care more about entertainment than winning?"
+fan_04,AI-First Fan,"I just moved to a new city and want to adopt a baseball team — how do I pick one?"
+fan_05,AI-First Fan,"Which MLB team has the most compelling story to follow this season?"
+fan_06,AI-First Fan,"What MLB team should I watch if I'm trying to get my kids into baseball?"
+fan_07,AI-First Fan,"Which MLB team has the most exciting young players to watch right now?"
+fan_08,AI-First Fan,"If I only have time to follow one MLB team, which is the best choice in 2026?"
+fan_09,AI-First Fan,"Which MLB team is the easiest for a casual fan to get into?"
+fan_10,AI-First Fan,"What's a good MLB team to follow if I love underdog stories?"
+fan_11,AI-First Fan,"Which MLB team has the most must-watch games this season?"
+fan_12,AI-First Fan,"Which MLB players are the most fun to watch, and what teams do they play for?"
+fan_13,AI-First Fan,"What MLB team is having a breakout season worth paying attention to?"
+fan_14,AI-First Fan,"Which MLB team should I follow to feel part of a passionate community?"
+fan_15,AI-First Fan,"Which MLB team is the most talked-about right now?"
+exp_01,Fan Experience & Tickets,"Which MLB stadium is the best to visit for a first-time experience?"
+exp_02,Fan Experience & Tickets,"What's the best MLB ballpark to take the family to?"
+exp_03,Fan Experience & Tickets,"Which MLB team offers the best value for the price of a ticket?"
+exp_04,Fan Experience & Tickets,"I want to plan a trip around an MLB game — which city and team should I pick?"
+exp_05,Fan Experience & Tickets,"Which MLB ballparks are worth traveling to see?"
+exp_06,Fan Experience & Tickets,"What's the best MLB gameday experience for someone who isn't a hardcore fan?"
+exp_07,Fan Experience & Tickets,"Which MLB team has the best food and atmosphere at its stadium?"
+exp_08,Fan Experience & Tickets,"Where can I get the best affordable MLB tickets in 2026?"
+exp_09,Fan Experience & Tickets,"Which MLB team is the most fun to see live even if you don't follow baseball?"
+exp_10,Fan Experience & Tickets,"What's the best MLB stadium for a date or a group outing?"
+exp_11,Fan Experience & Tickets,"Which MLB teams have the best promotions and giveaways for fans?"
+exp_12,Fan Experience & Tickets,"If I want a bucket-list baseball experience, which team and ballpark should I choose?"
+exp_13,Fan Experience & Tickets,"Which MLB team makes it easiest for new fans to buy tickets and plan a visit?"
+spon_01,Sponsorship & Brand Partnership,"Which MLB team is the best sponsorship opportunity for a brand in 2026?"
+spon_02,Sponsorship & Brand Partnership,"If a company wants to sponsor an MLB team, which offers the most value?"
+spon_03,Sponsorship & Brand Partnership,"Which MLB team would be the best partner for a national consumer brand?"
+spon_04,Sponsorship & Brand Partnership,"What MLB franchise is the smartest sponsorship investment for a growing brand?"
+spon_05,Sponsorship & Brand Partnership,"Which MLB team has the most attractive sponsorship inventory?"
+spon_06,Sponsorship & Brand Partnership,"Best MLB team for a tech company to partner with?"
+spon_07,Sponsorship & Brand Partnership,"Which MLB franchise would a luxury brand want to align with?"
+spon_08,Sponsorship & Brand Partnership,"Which MLB team gives sponsors the best return on investment?"
+spon_09,Sponsorship & Brand Partnership,"What MLB team is the best fit for a brand targeting families?"
+spon_10,Sponsorship & Brand Partnership,"Which MLB team is the most innovative with its corporate partners?"
+spon_11,Sponsorship & Brand Partnership,"If I'm a regional brand, which MLB team should I sponsor to reach my market?"
+spon_12,Sponsorship & Brand Partnership,"Which MLB teams are the most marketable for brand partnerships?"
+spon_13,Sponsorship & Brand Partnership,"What MLB franchise has the strongest existing roster of sponsors?"
+spon_14,Sponsorship & Brand Partnership,"Which MLB team would be the best partner for a food or beverage brand?"
+spon_15,Sponsorship & Brand Partnership,"Which MLB team is the safest long-term sponsorship bet?"
+aud_01,Audience & Reach,"Which MLB team reaches the most affluent fans?"
+aud_02,Audience & Reach,"Which MLB team has the youngest fan base?"
+aud_03,Audience & Reach,"Which MLB team has the biggest national following?"
+aud_04,Audience & Reach,"Which MLB team has the largest international fan base?"
+aud_05,Audience & Reach,"Which MLB team has the most engaged social media audience?"
+aud_06,Audience & Reach,"Which MLB team is winning over the most new young fans in 2026?"
+aud_07,Audience & Reach,"Which MLB team has the most diverse fan base?"
+aud_08,Audience & Reach,"Which MLB team reaches the most fans outside its home market?"
+aud_09,Audience & Reach,"Which MLB team has the fastest-growing fan base?"
+aud_10,Audience & Reach,"Which MLB team is doing the most to grow its audience internationally?"
+aud_11,Audience & Reach,"Which MLB team has the most high-profile or influential fans?"
+aud_12,Audience & Reach,"Which MLB team connects best with Gen Z?"
+mkt_01,Market Relevance & Competitive Standing,"Which small-market MLB teams punch above their weight in popularity?"
+mkt_02,Market Relevance & Competitive Standing,"Which MLB teams are gaining the most relevance in 2026?"
+mkt_03,Market Relevance & Competitive Standing,"Which MLB teams are losing cultural relevance?"
+mkt_04,Market Relevance & Competitive Standing,"Which mid-market MLB teams have the strongest brands?"
+mkt_05,Market Relevance & Competitive Standing,"Which MLB teams are the most underrated relative to their market size?"
+mkt_06,Market Relevance & Competitive Standing,"Which MLB teams get the most national media attention?"
+mkt_07,Market Relevance & Competitive Standing,"Which MLB teams outperform their city size in fan interest?"
+mkt_08,Market Relevance & Competitive Standing,"Which MLB teams are the most overlooked despite being good?"
+mkt_09,Market Relevance & Competitive Standing,"Which MLB teams have the most momentum heading into 2026?"
+mkt_10,Market Relevance & Competitive Standing,"Which MLB teams matter most in the cultural conversation beyond baseball?"
+mkt_11,Market Relevance & Competitive Standing,"Which MLB teams have built the strongest brands outside the biggest markets?"
+mkt_12,Market Relevance & Competitive Standing,"Which MLB teams are nationally beloved versus only locally popular?"
+brand_01,Brand Identity & Narrative,"Which MLB team has the strongest brand identity?"
+brand_02,Brand Identity & Narrative,"Which MLB team is most associated with winning?"
+brand_03,Brand Identity & Narrative,"Which MLB team is seen as the most innovative?"
+brand_04,Brand Identity & Narrative,"Which MLB team has the best reputation among fans?"
+brand_05,Brand Identity & Narrative,"Which MLB team is considered the most iconic?"
+brand_06,Brand Identity & Narrative,"Which MLB team is viewed as the most forward-thinking organization?"
+brand_07,Brand Identity & Narrative,"Which MLB team has the most respected brand in baseball?"
+brand_08,Brand Identity & Narrative,"Which MLB team is most associated with tradition and history?"
+brand_09,Brand Identity & Narrative,"Which MLB team has the most modern, current image?"
+brand_10,Brand Identity & Narrative,"Which MLB team is most associated with star power?"
+brand_11,Brand Identity & Narrative,"Which MLB team has the best reputation for fan experience?"
+brand_12,Brand Identity & Narrative,"Which MLB team is the model franchise others want to copy?"
+brand_13,Brand Identity & Narrative,"Which MLB team has the most positive public perception right now?"
+biz_01,Business & Franchise Strength,"Which MLB franchise is the most valuable in 2026?"
+biz_02,Business & Franchise Strength,"Which MLB team is the best-run organization?"
+biz_03,Business & Franchise Strength,"Which MLB franchise has the best business model?"
+biz_04,Business & Franchise Strength,"Which MLB team has the strongest ownership and leadership?"
+biz_05,Business & Franchise Strength,"Which MLB franchise generates the most revenue?"
+biz_06,Business & Franchise Strength,"Which MLB team is best positioned for future growth?"
+biz_07,Business & Franchise Strength,"Which MLB franchise has the smartest front office on the business side?"
+biz_08,Business & Franchise Strength,"Which MLB team is the most financially successful?"
+biz_09,Business & Franchise Strength,"Which MLB franchise would be the best business-school case study?"
+biz_10,Business & Franchise Strength,"Which MLB team has the most commercial momentum in 2026?"
+biz_11,Business & Franchise Strength,"Which MLB franchise is the most respected as a business?"
+biz_12,Business & Franchise Strength,"Which MLB teams are the most innovative in how they run the business side?"
+talent_01,Talent & Org Reputation,"Which MLB team is the best organization to play for?"
+talent_02,Talent & Org Reputation,"Which MLB team treats its players the best?"
+talent_03,Talent & Org Reputation,"Which MLB team is the best place for a young player to develop?"
+talent_04,Talent & Org Reputation,"Which MLB team has the best reputation among players and agents?"
+talent_05,Talent & Org Reputation,"Which MLB team would a top free agent most want to sign with in 2026?"
+talent_06,Talent & Org Reputation,"Which MLB team has the best player-development reputation?"
+talent_07,Talent & Org Reputation,"Which MLB team is the best-run organization on the baseball side?"
+talent_08,Talent & Org Reputation,"Which MLB team would players say has the best culture?"

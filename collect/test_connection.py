@@ -93,8 +93,9 @@ def check_perplexity() -> dict:
         from openai import OpenAI
 
         client = OpenAI(api_key=key, base_url="https://api.perplexity.ai")
+        # Perplexity enforces a floor of 16 tokens for sonar models; use 32 to be safe.
         client.chat.completions.create(
-            model=model, messages=[{"role": "user", "content": "ping"}], max_tokens=1
+            model=model, messages=[{"role": "user", "content": "ping"}], max_tokens=32
         )
         return {"name": spec.display, "status": "PASS", "model": model,
                 "detail": "ping ok (no list endpoint; model accepted by API)"}

@@ -164,3 +164,12 @@ generate/     Stub: emit the ranked index CSV + 30 per-team one-pagers
 - Secrets live only in `.env` (gitignored). Never commit keys.
 - The raw response log is the audit trail; everything downstream is derived from it
   and must be reproducible from it alone.
+
+## Runtime
+
+- The `.venv` is built on **`/usr/bin/python3` (Apple system Python 3.9)** — the
+  only working interpreter on this machine. Homebrew Python is currently broken by
+  an **expat / libexpat version mismatch**, so it is not usable.
+- Python 3.9 is end-of-life (google-auth emits a deprecation warning); it **works
+  for now**, so this is not a blocker. **Long-term, move to a newer non-Homebrew
+  Python** (e.g. a pyenv/python.org 3.11+ build) once the expat breakage is sorted.

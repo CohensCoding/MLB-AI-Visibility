@@ -21,6 +21,11 @@ except ImportError:  # python-dotenv not installed; rely on real env vars
     pass
 
 
+# Per-call request timeout (seconds). Bounds each provider call so a stale socket
+# (e.g. after the machine sleeps mid-request) errors instead of hanging forever.
+# Generous enough for web-search / grounding calls; timeouts are retried.
+REQUEST_TIMEOUT = 180
+
 # The full run matrix.
 PROMPT_COUNT = 100
 PASSES = 3        # passes per prompt for the 4 API engines

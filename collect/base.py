@@ -77,6 +77,26 @@ def _is_hard_quota(exc: Exception) -> bool:
     )
 
 
+def _is_transient(exc: Exception) -> bool:
+    """Retryable errors: rate limits, timeouts, and connection drops.
+
+    A stale socket after the machine sleeps surfaces as a timeout / connection
+    error — retrying re-establishes the connection rather than failing the row.
+    """
+    if _is_rate_limit(exc):
+        return True
+    name = type(exc).__name__.lower()
+    text = str(exc).lower()
+    return (
+        "timeout" in name
+        or "timeout" in text
+        or "timed out" in text
+        or "connection" in name
+        or "connection error" in text
+        or "apiconnection" in name
+    )
+
+
 def _is_rate_limit(exc: Exception) -> bool:
     name = type(exc).__name__.lower()
     text = str(exc).lower()
@@ -105,12 +125,12 @@ def with_retries(fn, *, max_retries: int = 5, base_delay: float = 2.0, label: st
                     f"{label}: hard quota, not retrying — {type(exc).__name__}: {exc}"
                 ) from exc
             attempt += 1
-            transient = _is_rate_limit(exc)
+            transient = _is_transient(exc)
             if attempt > max_retries or not transient:
                 raise CollectorError(f"{label}: {type(exc).__name__}: {exc}") from exc
             delay = base_delay * (2 ** (attempt - 1)) + random.uniform(0, 1)
-            print(f"  ⏳ {label}: rate-limited (attempt {attempt}/{max_retries}); "
-                  f"retrying in {delay:.1f}s")
+            print(f"  ⏳ {label}: transient ({type(exc).__name__}) "
+                  f"(attempt {attempt}/{max_retries}); retrying in {delay:.1f}s")
             time.sleep(delay)
 
 

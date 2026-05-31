@@ -5,7 +5,7 @@ Reads ANTHROPIC_API_KEY and ANTHROPIC_MODEL from .env. One fresh call per query.
 
 from __future__ import annotations
 
-from .config import ENGINES, get_key, get_model
+from .config import ENGINES, REQUEST_TIMEOUT, get_key, get_model
 
 SPEC = ENGINES["anthropic"]
 
@@ -23,7 +23,7 @@ class ClaudeCollector:
         self.model = get_model(SPEC)
         if not self.model:
             raise RuntimeError(f"{SPEC.model_var} is not set in .env")
-        self._client = anthropic.Anthropic(api_key=key)
+        self._client = anthropic.Anthropic(api_key=key, timeout=REQUEST_TIMEOUT)
 
     def query(self, prompt_text: str) -> str:
         resp = self._client.messages.create(

@@ -6,7 +6,7 @@ web natively, so web search is inherently on. One fresh call per query.
 
 from __future__ import annotations
 
-from .config import ENGINES, get_key, get_model
+from .config import ENGINES, REQUEST_TIMEOUT, get_key, get_model
 
 SPEC = ENGINES["perplexity"]
 BASE_URL = "https://api.perplexity.ai"
@@ -25,7 +25,7 @@ class PerplexityCollector:
         self.model = get_model(SPEC)
         if not self.model:
             raise RuntimeError(f"{SPEC.model_var} is not set in .env")
-        self._client = OpenAI(api_key=key, base_url=BASE_URL)
+        self._client = OpenAI(api_key=key, base_url=BASE_URL, timeout=REQUEST_TIMEOUT)
 
     def query(self, prompt_text: str) -> str:
         resp = self._client.chat.completions.create(

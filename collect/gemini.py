@@ -5,7 +5,7 @@ Reads GEMINI_API_KEY and GEMINI_MODEL from .env. One fresh call per query.
 
 from __future__ import annotations
 
-from .config import ENGINES, get_key, get_model
+from .config import ENGINES, REQUEST_TIMEOUT, get_key, get_model
 
 SPEC = ENGINES["gemini"]
 
@@ -24,7 +24,11 @@ class GeminiCollector:
         self.model = get_model(SPEC)
         if not self.model:
             raise RuntimeError(f"{SPEC.model_var} is not set in .env")
-        self._client = genai.Client(api_key=key)
+        # google-genai expects the HTTP timeout in milliseconds.
+        self._client = genai.Client(
+            api_key=key,
+            http_options=types.HttpOptions(timeout=REQUEST_TIMEOUT * 1000),
+        )
         self._config = types.GenerateContentConfig(
             tools=[types.Tool(google_search=types.GoogleSearch())]
         )

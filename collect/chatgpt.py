@@ -6,7 +6,7 @@ conversation state is carried between calls.
 
 from __future__ import annotations
 
-from .config import ENGINES, get_key, get_model
+from .config import ENGINES, REQUEST_TIMEOUT, get_key, get_model
 
 SPEC = ENGINES["openai"]
 
@@ -24,7 +24,7 @@ class ChatGPTCollector:
         self.model = get_model(SPEC)
         if not self.model:
             raise RuntimeError(f"{SPEC.model_var} is not set in .env")
-        self._client = OpenAI(api_key=key)
+        self._client = OpenAI(api_key=key, timeout=REQUEST_TIMEOUT)
 
     def query(self, prompt_text: str) -> str:
         # The Responses API web-search tool type was renamed; try the current name

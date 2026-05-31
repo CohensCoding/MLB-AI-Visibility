@@ -27,10 +27,23 @@ from .base import CaptureRow, CollectorError, HardQuotaError, append_row, with_r
 
 CAPTURE_LOG = os.path.join("data", "capture_log.csv")
 PROMPTS_CSV = os.path.join("prompts", "prompts.csv")
+PROGRESS_LOG = os.path.join("logs", "collection_progress.log")
 
 
 def _utc_now() -> str:
     return datetime.now(timezone.utc).isoformat()
+
+
+def _progress(msg: str) -> None:
+    """Append a timestamped line to the progress log AND echo to stdout.
+
+    Lets the run be verified as actually advancing (not just 'alive').
+    """
+    line = f"{_utc_now()}  {msg}"
+    print(line, flush=True)
+    os.makedirs(os.path.dirname(PROGRESS_LOG), exist_ok=True)
+    with open(PROGRESS_LOG, "a") as f:
+        f.write(line + "\n")
 
 
 def load_prompts() -> list[dict]:
@@ -93,10 +106,10 @@ def run(engine_keys: list[str] | None = None, limit: int | None = None) -> None:
 
     done = load_captured_ids()
     total = len(prompts) * sum(config.passes_for(e) for e in engine_keys)
-    print(f"Matrix: {len(prompts)} prompts × ["
-          f"{len(config.API_ENGINE_KEYS)} API engines × {config.PASSES} passes + "
-          f"AIO × {config.AIO_PASSES} pass] = {total} queries "
-          f"(full matrix is {config.TOTAL_RUNS}). Already captured: {len(done)}.")
+    _progress(f"START — {len(prompts)} prompts × ["
+              f"{len(config.API_ENGINE_KEYS)} API × {config.PASSES} + AIO × {config.AIO_PASSES}] "
+              f"= {total} queries (full matrix {config.TOTAL_RUNS}). "
+              f"Already captured: {len(done)}.")
 
     n = 0
     for engine_key in engine_keys:
@@ -123,7 +136,9 @@ def run(engine_keys: list[str] | None = None, limit: int | None = None) -> None:
                 label = f"[{n}/{total}] {query_id}"
                 try:
                     text = with_retries(
-                        lambda c=collector, t=p["text"]: c.query(t), label=label
+                        lambda c=collector, t=p["text"]: c.query(t),
+                        max_timeout_retries=config.MAX_TIMEOUT_RETRIES,
+                        label=label,
                     )
                     captured = True
                 except HardQuotaError as exc:
@@ -150,7 +165,7 @@ def run(engine_keys: list[str] | None = None, limit: int | None = None) -> None:
                     ),
                 )
                 flag = "✓" if captured else "✗"
-                print(f"{flag} {label} ({len(text)} chars)")
+                _progress(f"{flag} [{n}/{total}] {query_id} ({len(text)} chars)")
                 if quota_hit:
                     break
             if quota_hit:
@@ -160,7 +175,7 @@ def run(engine_keys: list[str] | None = None, limit: int | None = None) -> None:
                       f"{remaining} queries for this engine. Fix billing/quota and re-run.")
                 break
 
-    print(f"Done. Capture log: {CAPTURE_LOG}")
+    _progress(f"DONE. Capture log: {CAPTURE_LOG}")
 
 
 def _parse_args(argv: list[str]) -> tuple[list[str] | None, int | None]:

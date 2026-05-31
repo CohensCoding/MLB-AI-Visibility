@@ -77,21 +77,24 @@ def _is_hard_quota(exc: Exception) -> bool:
     )
 
 
+def _is_timeout(exc: Exception) -> bool:
+    name = type(exc).__name__.lower()
+    text = str(exc).lower()
+    return "timeout" in name or "timeout" in text or "timed out" in text
+
+
 def _is_transient(exc: Exception) -> bool:
     """Retryable errors: rate limits, timeouts, and connection drops.
 
     A stale socket after the machine sleeps surfaces as a timeout / connection
     error — retrying re-establishes the connection rather than failing the row.
     """
-    if _is_rate_limit(exc):
+    if _is_rate_limit(exc) or _is_timeout(exc):
         return True
     name = type(exc).__name__.lower()
     text = str(exc).lower()
     return (
-        "timeout" in name
-        or "timeout" in text
-        or "timed out" in text
-        or "connection" in name
+        "connection" in name
         or "connection error" in text
         or "apiconnection" in name
     )
@@ -112,24 +115,48 @@ def _is_rate_limit(exc: Exception) -> bool:
     )
 
 
-def with_retries(fn, *, max_retries: int = 5, base_delay: float = 2.0, label: str = ""):
-    """Call fn() with exponential backoff + jitter on rate-limit / transient errors."""
+def with_retries(
+    fn,
+    *,
+    max_retries: int = 5,
+    max_timeout_retries: int = 3,
+    base_delay: float = 2.0,
+    label: str = "",
+):
+    """Call fn() with exponential backoff + jitter on transient errors.
+
+    - Hard quota (limit:0 / daily): fail fast, no retry (raises HardQuotaError).
+    - Timeouts: retried up to `max_timeout_retries`; after that the query is
+      skipped (raises CollectorError) so one dead query can't stall the run.
+    - Other transient errors (rate limit / connection): retried up to `max_retries`.
+    """
     attempt = 0
+    timeout_attempts = 0
     while True:
         try:
             return fn()
         except Exception as exc:  # noqa: BLE001 - provider SDKs raise varied types
-            # Hard quota (limit:0 / daily) can't clear by retrying — fail fast.
             if _is_hard_quota(exc):
                 raise HardQuotaError(
                     f"{label}: hard quota, not retrying — {type(exc).__name__}: {exc}"
                 ) from exc
-            attempt += 1
-            transient = _is_transient(exc)
-            if attempt > max_retries or not transient:
+            if not _is_transient(exc):
                 raise CollectorError(f"{label}: {type(exc).__name__}: {exc}") from exc
+
+            attempt += 1
+            if _is_timeout(exc):
+                timeout_attempts += 1
+                if timeout_attempts >= max_timeout_retries:
+                    raise CollectorError(
+                        f"{label}: timed out {timeout_attempts}× in a row — "
+                        f"skipping (re-run later): {type(exc).__name__}: {exc}"
+                    ) from exc
+            if attempt > max_retries:
+                raise CollectorError(f"{label}: {type(exc).__name__}: {exc}") from exc
+
             delay = base_delay * (2 ** (attempt - 1)) + random.uniform(0, 1)
-            print(f"  ⏳ {label}: transient ({type(exc).__name__}) "
+            kind = "timeout" if _is_timeout(exc) else "transient"
+            print(f"  ⏳ {label}: {kind} ({type(exc).__name__}) "
                   f"(attempt {attempt}/{max_retries}); retrying in {delay:.1f}s")
             time.sleep(delay)
 

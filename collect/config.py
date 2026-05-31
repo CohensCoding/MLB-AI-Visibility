@@ -13,7 +13,10 @@ from dataclasses import dataclass
 try:
     from dotenv import load_dotenv
 
-    load_dotenv()
+    # override=True: .env is this project's source of truth for keys + model pins.
+    # Without it, an inherited shell var (e.g. an empty exported ANTHROPIC_API_KEY)
+    # silently shadows the real value in .env. .env must win.
+    load_dotenv(override=True)
 except ImportError:  # python-dotenv not installed; rely on real env vars
     pass
 

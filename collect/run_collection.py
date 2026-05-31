@@ -147,6 +147,15 @@ def run(engine_keys: list[str] | None = None, limit: int | None = None) -> None:
                 except CollectorError as exc:
                     print(f"  ✗ {label}: {exc}")
                     text, captured = "", False
+                except Exception as exc:  # noqa: BLE001 - bulletproof
+                    # No single query may kill the run. Log verbatim (traceback to
+                    # stderr/run.out), mark captured=false, and keep going.
+                    # (KeyboardInterrupt/SystemExit deliberately NOT caught, so the
+                    # run can still be stopped intentionally.)
+                    import traceback
+                    _progress(f"  ‼ {label}: UNEXPECTED {type(exc).__name__}: {exc}")
+                    traceback.print_exc()
+                    text, captured = "", False
 
                 append_row(
                     CAPTURE_LOG,

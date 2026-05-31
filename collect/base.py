@@ -62,10 +62,20 @@ class HardQuotaError(CollectorError):
 def _is_hard_quota(exc: Exception) -> bool:
     """True for quota errors that retrying within this run cannot clear.
 
-    Catches RESOURCE_EXHAUSTED with a zero limit or a *daily* quota violation,
-    while leaving transient per-minute rate limits to the normal retry path.
+    Catches two non-recoverable cases, while leaving transient per-minute rate
+    limits to the normal retry path:
+      - Google RESOURCE_EXHAUSTED with a zero limit / *daily* quota violation
+      - billing/credit exhaustion (e.g. OpenAI `insufficient_quota`) — the account
+        is out of credit, so retrying within a run can never succeed
     """
     text = str(exc).lower()
+    # Billing/credit exhaustion — independent of the resource_exhausted/quota gate.
+    if (
+        "insufficient_quota" in text
+        or "exceeded your current quota" in text
+        or "check your plan and billing" in text
+    ):
+        return True
     if "resource_exhausted" not in text and "quota" not in text:
         return False
     return (

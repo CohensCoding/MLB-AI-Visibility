@@ -78,9 +78,18 @@ def build_collector(engine_key: str):
     raise ValueError(f"unknown engine: {engine_key}")
 
 
-def run(engine_keys: list[str] | None = None) -> None:
+def run(engine_keys: list[str] | None = None, limit: int | None = None) -> None:
     engine_keys = engine_keys or config.ALL_ENGINE_KEYS
     prompts = load_prompts()
+    # --limit / TEST_LIMIT: run only the first N prompts (test batch). Rows are
+    # written to data/capture_log.csv exactly as the full run would write them.
+    if limit is None:
+        env_limit = os.environ.get("TEST_LIMIT")
+        limit = int(env_limit) if env_limit else None
+    if limit is not None:
+        prompts = prompts[:limit]
+        print(f"⚠ TEST BATCH: limited to the first {len(prompts)} prompts.")
+
     done = load_captured_ids()
     total = len(engine_keys) * len(prompts) * config.PASSES
     print(f"Matrix: {len(engine_keys)} engines × {len(prompts)} prompts × "
@@ -139,5 +148,25 @@ def run(engine_keys: list[str] | None = None) -> None:
     print(f"Done. Capture log: {CAPTURE_LOG}")
 
 
+def _parse_args(argv: list[str]) -> tuple[list[str] | None, int | None]:
+    """Split CLI args into engine keys and an optional --limit N."""
+    engines: list[str] = []
+    limit: int | None = None
+    i = 0
+    while i < len(argv):
+        arg = argv[i]
+        if arg == "--limit":
+            limit = int(argv[i + 1])
+            i += 2
+        elif arg.startswith("--limit="):
+            limit = int(arg.split("=", 1)[1])
+            i += 1
+        else:
+            engines.append(arg)
+            i += 1
+    return (engines or None), limit
+
+
 if __name__ == "__main__":
-    run(sys.argv[1:] or None)
+    keys, lim = _parse_args(sys.argv[1:])
+    run(keys, lim)

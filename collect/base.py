@@ -59,23 +59,50 @@ class HardQuotaError(CollectorError):
     """
 
 
-def _is_hard_quota(exc: Exception) -> bool:
-    """True for quota errors that retrying within this run cannot clear.
+def _is_credit_or_billing(exc: Exception) -> bool:
+    """True for provider credit/billing exhaustion — regardless of HTTP status.
 
-    Catches two non-recoverable cases, while leaving transient per-minute rate
-    limits to the normal retry path:
-      - Google RESOURCE_EXHAUSTED with a zero limit / *daily* quota violation
-      - billing/credit exhaustion (e.g. OpenAI `insufficient_quota`) — the account
-        is out of credit, so retrying within a run can never succeed
+    These can't clear by retrying within a run, and providers signal them with
+    DIFFERENT status codes and wording:
+      - OpenAI     429 `insufficient_quota` / 'exceeded your current quota'
+      - Anthropic  400 'credit balance is too low'
+      - Perplexity / generic  402 Payment Required, 'out of credits', etc.
     """
     text = str(exc).lower()
-    # Billing/credit exhaustion — independent of the resource_exhausted/quota gate.
-    if (
-        "insufficient_quota" in text
-        or "exceeded your current quota" in text
-        or "check your plan and billing" in text
-    ):
+    status = getattr(exc, "status_code", None) or getattr(exc, "code", None)
+    if status == 402:  # Payment Required — unambiguous billing signal
         return True
+    return any(s in text for s in (
+        "insufficient_quota",
+        "insufficient quota",
+        "insufficient credit",      # covers 'insufficient credits'
+        "exceeded your current quota",
+        "credit balance is too low",
+        "credit balance",
+        "out of credits",
+        "purchase credits",
+        "not enough credits",
+        "check your plan and billing",
+        "billing details",
+        "plans & billing",
+        "plan & billing",
+        "payment required",
+        "payment method",
+    ))
+
+
+def _is_hard_quota(exc: Exception) -> bool:
+    """True for quota / credit errors that retrying within this run cannot clear.
+
+    The orchestrator fail-fast-skips the rest of that engine. Covers, while leaving
+    transient per-minute rate limits to the normal retry path:
+      - Google RESOURCE_EXHAUSTED with a zero limit / *daily* quota violation
+      - any provider's credit/billing exhaustion (see _is_credit_or_billing) —
+        OpenAI 429, Anthropic 400, Perplexity/generic 402, etc.
+    """
+    if _is_credit_or_billing(exc):
+        return True
+    text = str(exc).lower()
     if "resource_exhausted" not in text and "quota" not in text:
         return False
     return (

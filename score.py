@@ -203,30 +203,164 @@ def score_response(teams, attribution_only):
     return scored
 
 
-def aggregate(raw_log, reference_table):
-    """Sum points per team overall, and separately per category and per engine.
+def score_one(text, compiled):
+    """Score one response. Returns (scored, name_order, attr_only, attr_detail).
 
-    Returns the running totals needed for the index and the one-pager category cuts.
-    TODO: load raw_log, run extract/score per row, accumulate.
+    Positional 5/3/1 applies to the order teams are NAMED (name/alias hits only);
+    attribution-only teams (ballpark/owner, never named) score 1. Highest per team.
     """
-    raise NotImplementedError
-
-
-def normalize(team_totals):
-    """Anchor the top team to 100.0; others = (raw / max raw) * 100.
-
-    TODO: implement once aggregation returns real totals.
-    """
-    raise NotImplementedError
+    hits = find_mentions(text, compiled)
+    name_order: list[str] = []
+    for h in hits:
+        if h["kind"] == "name" and h["team_id"] not in name_order:
+            name_order.append(h["team_id"])
+    named = set(name_order)
+    attr_only: list[str] = []
+    for h in hits:
+        if h["kind"] == "attribution" and h["team_id"] not in named and h["team_id"] not in attr_only:
+            attr_only.append(h["team_id"])
+    scored = score_response(name_order, attr_only)
+    attr_detail = [(h["team_id"], h["matched"]) for h in hits
+                   if h["team_id"] in set(attr_only)]
+    return scored, name_order, attr_only, attr_detail
 
 
 CAPTURE_LOG = "data/capture_log.csv"
+INDEX_CSV = "data/citation_index.csv"
+AUDIT_CSV = "data/attribution_audit.csv"
+
+# Engine display name -> short rank-column key (mirrors NFL schema).
+ENGINE_KEYS = {
+    "ChatGPT": "chatgpt", "Claude": "claude", "Gemini": "gemini",
+    "Perplexity": "perplexity", "Google AI Overviews": "gaio",
+}
+# Category -> short rank-column key.
+CATEGORY_KEYS = {
+    "AI-First Fan": "ai_fan",
+    "Fan Experience & Tickets": "experience",
+    "Sponsorship & Brand Partnership": "sponsorship",
+    "Audience & Reach": "audience",
+    "Market Relevance & Competitive Standing": "market",
+    "Brand Identity & Narrative": "brand",
+    "Business & Franchise Strength": "business",
+    "Talent & Org Reputation": "talent",
+}
+
+
+def aggregate(capture_log=CAPTURE_LOG, compiled=None):
+    """Score every captured response; accumulate points overall, per category,
+    per engine, plus first-place counts, appearances, and the attribution audit."""
+    if compiled is None:
+        compiled = build_matchers(load_reference())
+    overall = {}
+    by_cat = {}            # cat_key -> {team: pts}
+    by_eng = {}            # eng_key -> {team: pts}
+    first_place = {}       # team -> count of responses where named first
+    appearances = {}       # team -> count of responses where it scored
+    audit = []             # attribution-only credits, for review
+    with open(capture_log, newline="") as f:
+        for r in csv.DictReader(f):
+            if str(r.get("captured", "")).strip().lower() not in {"true", "1", "yes"}:
+                continue
+            scored, name_order, attr_only, attr_detail = score_one(
+                r["raw_response_text"], compiled)
+            ck = CATEGORY_KEYS.get(r["category"])
+            ek = ENGINE_KEYS.get(r["engine"])
+            for team, pts in scored.items():
+                overall[team] = overall.get(team, 0) + pts
+                appearances[team] = appearances.get(team, 0) + 1
+                by_cat.setdefault(ck, {})[team] = by_cat.setdefault(ck, {}).get(team, 0) + pts
+                by_eng.setdefault(ek, {})[team] = by_eng.setdefault(ek, {}).get(team, 0) + pts
+            if name_order:
+                first_place[name_order[0]] = first_place.get(name_order[0], 0) + 1
+            for team, matched in attr_detail:
+                audit.append({"query_id": r["query_id"], "engine": r["engine"],
+                              "category": r["category"], "team_id": team,
+                              "match_type": "attribution", "matched_string": matched})
+    return {"overall": overall, "by_cat": by_cat, "by_eng": by_eng,
+            "first_place": first_place, "appearances": appearances, "audit": audit}
+
+
+def normalize(team_totals):
+    """Anchor the top team to 100.0; others = (raw / max raw) * 100 (1 decimal)."""
+    top = max(team_totals.values()) if team_totals else 0
+    if not top:
+        return {t: 0.0 for t in team_totals}
+    return {t: round(v / top * 100, 1) for t, v in team_totals.items()}
+
+
+def _rank_map(points_by_team, all_teams):
+    """1..N rank by points desc (tie-break team_id) over all_teams (0 allowed)."""
+    ordered = sorted(all_teams, key=lambda t: (-points_by_team.get(t, 0), t))
+    return {t: i + 1 for i, t in enumerate(ordered)}
+
+
+def _tier(share):
+    if share >= 50:
+        return "I Dominant"
+    if share >= 20:
+        return "II Established"
+    if share > 0:
+        return "III Present"
+    return "IV Dead Zone"
+
+
+def build_index(agg, teams):
+    """Build the ranked 1-30 index rows mirroring the NFL schema."""
+    ref = {t["team_id"]: t for t in teams}
+    all_ids = list(ref)
+    overall = {t: agg["overall"].get(t, 0) for t in all_ids}
+    shares = normalize(overall)
+    cite_rank = _rank_map(overall, all_ids)
+    cat_ranks = {ck: _rank_map(agg["by_cat"].get(ck, {}), all_ids) for ck in CATEGORY_KEYS.values()}
+    eng_ranks = {ek: _rank_map(agg["by_eng"].get(ek, {}), all_ids) for ek in ENGINE_KEYS.values()}
+
+    rows = []
+    for tid in sorted(all_ids, key=lambda t: cite_rank[t]):
+        r = ref[tid]
+        sr = int(r["standing_2025_rank"]); vr = int(r["valuation_rank"])
+        row = {
+            "rank": cite_rank[tid], "team": r["full_name"], "team_id": tid,
+            "citation_share": shares[tid], "total_points": overall[tid],
+        }
+        for ck in CATEGORY_KEYS.values():
+            row[f"{ck}_rank"] = cat_ranks[ck][tid]
+        for ek in ENGINE_KEYS.values():
+            row[f"{ek}_rank"] = eng_ranks[ek][tid]
+        row["first_place_count"] = agg["first_place"].get(tid, 0)
+        row["appearances"] = agg["appearances"].get(tid, 0)
+        row["standing_2025_rank"] = sr
+        row["perf_gap"] = cite_rank[tid] - sr
+        row["valuation_rank"] = vr
+        row["val_gap"] = cite_rank[tid] - vr
+        row["tier"] = _tier(shares[tid])
+        rows.append(row)
+    return rows
 
 
 def main():
-    # TODO: load data/capture_log.csv + reference/teams.csv, aggregate, normalize,
-    # and write a scored dataset for generate/ to consume.
-    raise NotImplementedError("score.py is a scaffold — scoring not implemented yet.")
+    teams = load_reference()
+    compiled = build_matchers(teams)
+    agg = aggregate(CAPTURE_LOG, compiled)
+    rows = build_index(agg, teams)
+
+    with open(INDEX_CSV, "w", newline="") as f:
+        w = csv.DictWriter(f, fieldnames=list(rows[0].keys()))
+        w.writeheader(); w.writerows(rows)
+    with open(AUDIT_CSV, "w", newline="") as f:
+        w = csv.DictWriter(f, fieldnames=["query_id", "engine", "category",
+                                          "team_id", "match_type", "matched_string"])
+        w.writeheader(); w.writerows(agg["audit"])
+
+    print(f"Wrote {INDEX_CSV} ({len(rows)} teams) and {AUDIT_CSV} "
+          f"({len(agg['audit'])} attribution-only hits).")
+    print()
+    hdr = f"{'#':>2} {'team':22} {'share':>6} {'pts':>5} {'1st':>4} {'app':>4} {'stand':>5} {'pgap':>5} {'val':>4} {'vgap':>5}  tier"
+    print(hdr); print("-" * len(hdr))
+    for r in rows:
+        print(f"{r['rank']:>2} {r['team']:22} {r['citation_share']:>6.1f} {r['total_points']:>5} "
+              f"{r['first_place_count']:>4} {r['appearances']:>4} {r['standing_2025_rank']:>5} "
+              f"{r['perf_gap']:>+5} {r['valuation_rank']:>4} {r['val_gap']:>+5}  {r['tier']}")
 
 
 if __name__ == "__main__":

@@ -1,0 +1,31 @@
+rank,team,team_id,citation_share,total_points,ai_fan_rank,experience_rank,sponsorship_rank,audience_rank,market_rank,brand_rank,business_rank,talent_rank,chatgpt_rank,claude_rank,gemini_rank,perplexity_rank,gaio_rank,first_place_count,appearances,standing_2025_rank,perf_gap,valuation_rank,val_gap,tier
+1,Los Angeles Dodgers,LAD,100.0,3031,1,6,1,1,2,2,1,1,1,1,1,1,1,373,923,5,-4,2,-1,I Dominant
+2,New York Yankees,NYY,75.4,2284,4,14,2,2,1,1,2,2,2,2,2,2,2,286,748,4,-2,1,1,I Dominant
+3,Atlanta Braves,ATL,29.1,881,2,16,4,5,5,7,3,6,4,3,3,4,3,72,455,22,-19,8,-5,II Established
+4,Chicago Cubs,CHC,26.2,793,9,5,8,4,7,3,7,8,5,9,6,3,6,36,531,6,-2,4,0,II Established
+5,Boston Red Sox,BOS,22.8,690,13,4,6,7,8,5,8,18,9,4,4,6,9,35,432,9,-4,3,2,II Established
+6,San Diego Padres,SDP,20.7,626,15,2,5,3,9,10,17,25,3,14,10,11,4,56,326,8,-2,10,-4,II Established
+7,San Francisco Giants,SFG,20.5,622,20,1,3,11,10,9,10,11,13,5,5,5,10,53,336,17,-10,5,2,II Established
+8,Pittsburgh Pirates,PIT,19.7,596,3,3,26,14,14,8,16,15,10,8,7,9,8,48,302,26,-18,28,-20,III Present
+9,St. Louis Cardinals,STL,18.2,551,11,8,11,17,3,4,15,22,14,6,8,14,7,40,309,20,-11,12,-3,III Present
+10,Milwaukee Brewers,MIL,17.4,527,14,12,16,12,4,15,5,4,6,11,12,8,5,31,307,1,9,21,-11,III Present
+11,Tampa Bay Rays,TBR,16.1,489,10,27,27,28,6,6,4,5,7,7,11,21,13,32,257,21,-10,24,-13,III Present
+12,Seattle Mariners,SEA,14.0,424,8,13,7,8,17,14,14,9,8,20,13,7,12,26,256,7,5,15,-3,III Present
+13,New York Mets,NYM,12.9,391,21,10,9,6,15,21,13,7,12,10,16,10,23,10,285,14,-1,6,7,III Present
+14,Baltimore Orioles,BAL,11.7,355,6,7,22,13,20,13,11,16,18,23,9,12,17,25,217,24,-10,17,-3,III Present
+15,Philadelphia Phillies,PHI,10.5,317,7,22,12,20,16,18,20,10,11,24,17,13,11,18,225,2,13,7,8,III Present
+16,Cleveland Guardians,CLE,10.1,306,17,19,25,25,12,16,12,3,15,15,15,18,15,12,226,10,6,26,-10,III Present
+17,Cincinnati Reds,CIN,9.5,287,5,20,19,22,11,23,25,27,19,16,14,16,14,17,179,13,4,29,-12,III Present
+18,Athletics,ATH,8.7,263,16,28,17,18,13,19,6,17,17,12,19,20,19,21,161,23,-5,18,0,III Present
+19,Toronto Blue Jays,TOR,8.1,247,24,25,14,10,22,17,9,13,23,13,21,15,16,12,147,3,16,14,5,III Present
+20,Miami Marlins,MIA,7.7,234,27,11,30,9,19,11,24,19,20,19,18,17,24,17,126,19,1,30,-10,III Present
+21,Chicago White Sox,CWS,6.2,188,12,21,29,16,21,27,29,20,16,17,26,28,22,13,120,29,-8,20,1,III Present
+22,Detroit Tigers,DET,6.0,182,18,23,23,19,23,25,18,14,22,22,20,25,18,4,126,11,11,22,0,III Present
+23,Houston Astros,HOU,5.5,167,26,30,10,23,26,12,21,12,28,18,22,24,29,1,143,12,11,9,14,III Present
+24,Kansas City Royals,KCR,5.3,162,19,15,24,26,18,22,30,24,26,25,23,22,20,4,128,15,9,27,-3,III Present
+25,Los Angeles Angels,LAA,5.1,156,28,9,15,15,29,28,26,28,24,21,28,19,25,13,94,25,0,11,14,III Present
+26,Arizona Diamondbacks,ARI,4.3,130,22,24,21,21,24,24,27,26,21,30,25,23,27,6,90,18,8,19,7,III Present
+27,Colorado Rockies,COL,3.8,115,25,18,20,30,28,26,28,21,30,26,27,26,28,0,101,30,-3,25,2,III Present
+28,Texas Rangers,TEX,3.7,113,29,17,18,24,27,29,23,23,25,29,24,27,26,6,83,16,12,13,15,III Present
+29,Minnesota Twins,MIN,3.2,98,30,26,13,27,30,20,19,29,29,27,29,29,21,4,70,27,2,23,6,III Present
+30,Washington Nationals,WSH,2.5,77,23,29,28,29,25,30,22,30,27,28,30,30,30,1,69,28,2,16,14,III Present

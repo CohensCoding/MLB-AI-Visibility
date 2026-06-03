@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>The MLB AI Visibility Index — How AI Ranks All 30 Teams</title>
-<link rel="canonical" href="https://cohenscoding.github.io/MLB-AI-Visibility/">
+<link rel="canonical" href="https://thevisibilityreport.org/">
 <meta name="description" content="We analyzed 1,300 AI answers across 100 MLB questions to see which teams ChatGPT, Claude, Gemini, Perplexity, and Google AI Overview surface most.">
 <meta name="theme-color" content="#0b0d10">
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAzMiAzMiI+PHJlY3Qgd2lkdGg9IjMyIiBoZWlnaHQ9IjMyIiByeD0iNyIgZmlsbD0iIzBiMGQxMCIvPjxyZWN0IHg9IjYuNSIgeT0iOC42IiB3aWR0aD0iMTkiIGhlaWdodD0iMy42IiByeD0iMS44IiBmaWxsPSIjZmY1YjM1Ii8+PHJlY3QgeD0iNi41IiB5PSIxNC4yIiB3aWR0aD0iMTMuNCIgaGVpZ2h0PSIzLjYiIHJ4PSIxLjgiIGZpbGw9IiNmZjViMzUiLz48cmVjdCB4PSI2LjUiIHk9IjE5LjgiIHdpZHRoPSI4IiBoZWlnaHQ9IjMuNiIgcng9IjEuOCIgZmlsbD0iI2YzYzM0ZSIvPjwvc3ZnPg==">
@@ -12,15 +12,15 @@
 <meta property="og:site_name" content="The MLB AI Visibility Index">
 <meta property="og:title" content="The MLB AI Visibility Index — How AI Ranks All 30 Teams">
 <meta property="og:description" content="We analyzed 1,300 AI answers across 100 MLB questions to see which teams ChatGPT, Claude, Gemini, Perplexity, and Google AI Overview surface most.">
-<meta property="og:url" content="https://cohenscoding.github.io/MLB-AI-Visibility/">
-<meta property="og:image" content="https://cohenscoding.github.io/MLB-AI-Visibility/og-image-v2.png">
+<meta property="og:url" content="https://thevisibilityreport.org/">
+<meta property="og:image" content="https://thevisibilityreport.org/og-image-v2.png">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
 <meta property="og:image:alt" content="The MLB AI Visibility Index — 100 questions, 5 AI engines, 1,300 answers.">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="The MLB AI Visibility Index — How AI Ranks All 30 Teams">
 <meta name="twitter:description" content="We analyzed 1,300 AI answers across 100 MLB questions to see which teams ChatGPT, Claude, Gemini, Perplexity, and Google AI Overview surface most.">
-<meta name="twitter:image" content="https://cohenscoding.github.io/MLB-AI-Visibility/og-image-v2.png">
+<meta name="twitter:image" content="https://thevisibilityreport.org/og-image-v2.png">
 <meta name="twitter:image:alt" content="The MLB AI Visibility Index — 100 questions, 5 AI engines, 1,300 answers.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -267,7 +267,10 @@ footer .grid{display:grid;grid-template-columns:1.3fr 1fr;gap:32px}
 footer h5{font-family:var(--mono);font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--accent2);margin-bottom:10px}
 footer p{max-width:60ch;margin-bottom:10px}
 footer p b{color:var(--ink)}
-footer .note{font-size:12px;color:var(--faint);margin-top:26px;border-top:1px solid var(--line);padding-top:18px}
+footer .note{font-size:12px;color:var(--faint);margin-top:26px;border-top:1px solid var(--line);padding-top:18px;display:flex;justify-content:space-between;align-items:flex-end;gap:20px;flex-wrap:wrap}
+.note-credit{font-family:var(--mono);font-size:12px;color:var(--faint);white-space:nowrap}
+.note-credit a{color:var(--accent2);text-decoration:none}
+.note-credit a:hover{text-decoration:underline}
 
 @media(max-width:760px){
   .awards,.cat-grid,.statline,.divgrid,footer .grid{grid-template-columns:1fr}
@@ -293,6 +296,12 @@ footer .note{font-size:12px;color:var(--faint);margin-top:26px;border-top:1px so
 .qexp .qbody{column-count:2;column-gap:42px}
 .qexp .qcat{-webkit-column-break-inside:avoid;break-inside:avoid}
 @media(max-width:760px){.qexp .qbody{column-count:1}}
+.method .meyebrow{font-family:var(--mono);font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--accent2);margin-bottom:10px}
+.method-h{font-family:var(--disp);font-weight:700;font-size:24px;letter-spacing:-.015em;color:var(--ink);margin:0 0 18px}
+.method-body{columns:2;column-gap:48px}
+.method-body p{max-width:none;margin-bottom:13px;break-inside:avoid;-webkit-column-break-inside:avoid}
+.method-body p:last-child{margin-bottom:0}
+@media(max-width:760px){.method-body{columns:1}}
 </style>
 </head>
 <body>
@@ -389,17 +398,15 @@ footer .note{font-size:12px;color:var(--faint);margin-top:26px;border-top:1px so
 
 <div class="wrap">
 <footer>
-  <div class="grid">
-    <div>
-      <h5>How we counted</h5>
-      <p>100 team-neutral prompts across 8 categories. ChatGPT (GPT-5.5), Claude (Opus 4.8), Gemini 2.5 Pro, and Perplexity (Sonar) each answered all 100 questions three times with web search enabled; Google's AI Overview was captured once via SerpApi. Captured late May 2026, US/English — 1,300 responses and 7,772 team mentions in all. These five cover the large majority of AI answer traffic.</p>
-      <p>We set the scoring rules before reading any answers. First team named = 5 pts, second = 3, any other mention = 1, ballpark named without the team = 1 (one score per team per answer). Summed, then set the leader to 100 — that's the AI visibility score. Category scores count mentions within that category only.</p>
-      <p>When an answer named a ballpark but not the team (e.g. Wrigley), we credited the team — every such case is logged.</p>
-    </div>
-    <div>
-      <h5>What it is (and isn't)</h5>
-      <p><b>These are the engines' answers, not ours — we only counted.</b> It measures how often AI <i>surfaces</i> a team, not whether the team is good. Models drift, so we refresh it.</p>
-      <p>Cross-referenced against 2025 final standings and Forbes 2026 valuations. The full scored dataset is reproducible from the raw response log.</p>
+  <div class="method">
+    <div class="meyebrow">Methodology &amp; Limits</div>
+    <h4 class="method-h">How We Built the Index</h4>
+    <div class="method-body">
+      <p>We tested 100 team-neutral prompts across eight categories, including fan experience, player destination, sponsorship value, market relevance, franchise strength, brand identity, audience reach, and organizational reputation.</p>
+      <p>Each prompt was run through five major AI answer engines: ChatGPT, Claude, Google Gemini, Perplexity, and Google AI Overview. ChatGPT, Claude, Gemini, and Perplexity each answered every prompt three times. Google AI Overview was captured once per prompt. In total, the index analyzed 1,300 AI-generated answers and counted 7,772 team mentions.</p>
+      <p>Before reading the results, we set the scoring rules. The first team named received 5 points, the second team received 3 points, and every additional team mention received 1 point. If an answer named a ballpark without naming the team, that club received 1 point. Scores were summed across all answers, then indexed to 100, with the most-visible club setting the benchmark.</p>
+      <p>This is not a ranking of team quality, accuracy, authority, or on-field performance. It is a snapshot of what AI surfaced during a specific window in late May 2026, using U.S./English prompts with web search enabled where available. Models change, outputs shift, and correlation is not causation.</p>
+      <p>To pressure-test the results, we compared the index against 2025 final standings and Forbes 2026 franchise valuations. The full scored dataset is reproducible from the raw response log.</p>
     </div>
   </div>
   <details class="qexp">
@@ -539,7 +546,7 @@ footer .note{font-size:12px;color:var(--faint);margin-top:26px;border-top:1px so
     </div>
     </div>
   </details>
-  <div class="note">The MLB AI Visibility Index · V1 · Open · Replicable · Quarterly refresh.<br><b class="lineage">Built on the published methodology of The 5W NFL Citation Share Index 2026.</b></div>
+  <div class="note"><div class="note-left">The MLB AI Visibility Index · V1 · Open · Replicable · Quarterly refresh.<br><b class="lineage">Built on the published methodology of The 5W NFL Citation Share Index 2026.</b></div><div class="note-credit">Built, executed, and designed by <a href="https://www.linkedin.com/in/jake-cohen-b564764b/" target="_blank" rel="noopener">Jake Cohen</a></div></div>
 </footer>
 </div>
 

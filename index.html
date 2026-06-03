@@ -109,7 +109,6 @@ h1.title .l2{color:var(--accent)}
 .vb-sub{font-size:14.5px;color:var(--muted);max-width:66ch;margin-top:6px;line-height:1.5}
 .vb-legend{justify-content:center;margin-top:14px;font-size:12px}
 .vb-legend i{border-radius:50%;width:12px;height:12px}
-@media(max-width:640px){#recordchart .sf{display:none}}
 .engcols{display:flex;margin-top:24px;border:1px solid var(--line);border-radius:12px;overflow:hidden}
 .enggutter{flex:0 0 36px;background:var(--panel);border-right:1px solid var(--line)}
 .guthead{height:30px;display:flex;align-items:center;justify-content:flex-end;padding-right:9px;font-family:var(--mono);font-size:10.5px;color:var(--muted);border-bottom:1px solid var(--line);margin:0}
@@ -665,41 +664,47 @@ function slopeTip(t){
     <div style="margin-top:6px;font-family:var(--mono);font-size:12px;color:var(--muted)">finished <b style="color:var(--ink)">#${t.standRank}</b> &nbsp;·&nbsp; AI <b style="color:var(--ink)">#${t.rank}</b></div>`;
 }
 function renderSlope(){
-  const W=720,H=560,padT=60,padB=24,leftX=190,rightX=530,BG='#0b0d10';
+  const mob=window.innerWidth<=640;
+  const W=720,H=mob?1140:560,padT=mob?84:60,padB=mob?30:24,leftX=190,rightX=530,BG='#0b0d10';
   const top=padT,span=H-padT-padB,Y=r=>top+(r-1)/29*span;
   const ORANGE='rgb(255,123,31)',BLUE='rgb(86,142,200)';
   const movers=new Set(["TOR","PHI","TEX","ATL","PIT","STL"]);
   const colOf=t=>t.perfGap<0?ORANGE:BLUE;            // rise (AI above result)=orange, drop=blue
+  // responsive sizing — bigger on mobile so it stays legible when the viewBox scales down to phone width
+  const FS_M=mob?25:10.5,FS_N=mob?19:9,RD_M=mob?6.5:3.6,RD_N=mob?4:2.2;
+  const HDR=mob?22:14.5,SUB=mob?15:10,LW=mob?4:2.4,HALO=mob?7:5,HOVLW=mob?4.2:2.8,HOVR=mob?6.5:4.4;
+  const gap=mob?12:10,dyT=mob?7:3,titleY=mob?40:32,subY=mob?62:48;
   const line=(y1,y2,col,w)=>`<line x1="${leftX}" y1="${y1.toFixed(1)}" x2="${rightX}" y2="${y2.toFixed(1)}" stroke="${col}" stroke-width="${w}" stroke-linecap="round"/>`;
   let s=`<svg viewBox="0 0 ${W} ${H}" style="width:100%;height:auto;display:block">`;
   // column headers
-  s+=`<text x="${leftX}" y="32" text-anchor="middle" fill="var(--ink)" font-family="var(--disp)" font-weight="700" font-size="14.5">Final 2025 Standings</text>`;
-  s+=`<text x="${rightX}" y="32" text-anchor="middle" fill="var(--ink)" font-family="var(--disp)" font-weight="700" font-size="14.5">How AI ranks them</text>`;
-  s+=`<text x="${leftX}" y="48" text-anchor="middle" fill="var(--faint)" font-family="var(--mono)" font-size="10">best at top ↑</text>`;
-  s+=`<text x="${rightX}" y="48" text-anchor="middle" fill="var(--faint)" font-family="var(--mono)" font-size="10">best at top ↑</text>`;
-  // base: all 30 as labeled dots in BOTH columns (no connecting lines except movers)
+  s+=`<text x="${leftX}" y="${titleY}" text-anchor="middle" fill="var(--ink)" font-family="var(--disp)" font-weight="700" font-size="${HDR}">Final 2025 Standings</text>`;
+  s+=`<text x="${rightX}" y="${titleY}" text-anchor="middle" fill="var(--ink)" font-family="var(--disp)" font-weight="700" font-size="${HDR}">How AI ranks them</text>`;
+  s+=`<text x="${leftX}" y="${subY}" text-anchor="middle" fill="var(--faint)" font-family="var(--mono)" font-size="${SUB}">best at top \u2191</text>`;
+  s+=`<text x="${rightX}" y="${subY}" text-anchor="middle" fill="var(--faint)" font-family="var(--mono)" font-size="${SUB}">best at top \u2191</text>`;
+  // base: all 30 as labeled dots in BOTH columns (no connecting lines except movers); every label carries its rank
   T.forEach(t=>{ const hiM=movers.has(t.abbr),c=colOf(t),y1=Y(t.standRank),y2=Y(t.rank);
-    const cls=hiM?'':'class="sf"',dc=hiM?c:'var(--faint)',rd=hiM?3.6:2.2,lc=hiM?c:'var(--muted)',fw=hiM?'700':'400',fs=hiM?'10.5':'9';
+    const cls=hiM?'':'class="sf"',dc=hiM?c:'var(--faint)',rd=hiM?RD_M:RD_N,lc=hiM?c:'var(--muted)',fw=hiM?'700':'400',fs=hiM?FS_M:FS_N;
     s+=`<circle ${cls} cx="${leftX}" cy="${y1.toFixed(1)}" r="${rd}" fill="${dc}"/>`;
     s+=`<circle ${cls} cx="${rightX}" cy="${y2.toFixed(1)}" r="${rd}" fill="${dc}"/>`;
-    const star=t.divWinner?`<tspan fill="var(--gold)">★ </tspan>`:'';
-    const lTxt=hiM?`${t.abbr} #${t.standRank}`:t.abbr, rTxt=hiM?`${t.abbr} #${t.rank}`:t.abbr;
-    s+=`<text ${cls} x="${leftX-10}" y="${(y1+3).toFixed(1)}" text-anchor="end" fill="${lc}" font-family="var(--mono)" font-size="${fs}" font-weight="${fw}">${star}${lTxt}</text>`;
-    s+=`<text ${cls} x="${rightX+10}" y="${(y2+3).toFixed(1)}" text-anchor="start" fill="${lc}" font-family="var(--mono)" font-size="${fs}" font-weight="${fw}">${rTxt}</text>`;
+    const star=t.divWinner?`<tspan fill="var(--gold)">\u2605 </tspan>`:'';
+    const lTxt=`${t.abbr} #${t.standRank}`, rTxt=`${t.abbr} #${t.rank}`;
+    s+=`<text ${cls} x="${(leftX-gap).toFixed(1)}" y="${(y1+dyT).toFixed(1)}" text-anchor="end" fill="${lc}" font-family="var(--mono)" font-size="${fs}" font-weight="${fw}">${star}${lTxt}</text>`;
+    s+=`<text ${cls} x="${(rightX+gap).toFixed(1)}" y="${(y2+dyT).toFixed(1)}" text-anchor="start" fill="${lc}" font-family="var(--mono)" font-size="${fs}" font-weight="${fw}">${rTxt}</text>`;
   });
   // permanent mover lines, drawn ABOVE dots, each with a dark halo so crossings stay traceable
   T.forEach(t=>{ if(!movers.has(t.abbr))return; const y1=Y(t.standRank),y2=Y(t.rank);
-    s+=line(y1,y2,BG,5)+line(y1,y2,colOf(t),2.4); });
+    s+=line(y1,y2,BG,HALO)+line(y1,y2,colOf(t),LW); });
   // per-team hover layer (hidden) — draws its colored line + bold dots on demand
-  T.forEach(t=>{ const cls=movers.has(t.abbr)?'':'class="sf"',c=colOf(t),y1=Y(t.standRank),y2=Y(t.rank);
+  T.forEach(t=>{ const c=colOf(t),y1=Y(t.standRank),y2=Y(t.rank);
     s+=`<g class="hov ${movers.has(t.abbr)?'':'sf'}" id="hov-${t.abbr}">`
-      +line(y1,y2,BG,6)+line(y1,y2,c,2.8)
-      +`<circle cx="${leftX}" cy="${y1.toFixed(1)}" r="4.4" fill="${c}"/><circle cx="${rightX}" cy="${y2.toFixed(1)}" r="4.4" fill="${c}"/></g>`; });
+      +line(y1,y2,BG,HALO+1)+line(y1,y2,c,HOVLW)
+      +`<circle cx="${leftX}" cy="${y1.toFixed(1)}" r="${HOVR}" fill="${c}"/><circle cx="${rightX}" cy="${y2.toFixed(1)}" r="${HOVR}" fill="${c}"/></g>`; });
   // full-row hit areas: left label+dot, connector, right dot+label — one group per team
   T.forEach(t=>{ const cls=movers.has(t.abbr)?'':'class="sf"',y1=Y(t.standRank),y2=Y(t.rank);
+    const hw=mob?150:86,hlx=leftX-(mob?142:78),hh=mob?18:16;
     s+=`<g ${cls} data-id="${t.abbr}" style="cursor:default">`
-      +`<rect x="${leftX-78}" y="${(y1-8).toFixed(1)}" width="86" height="16" fill="transparent"/>`
-      +`<rect x="${rightX-8}" y="${(y2-8).toFixed(1)}" width="86" height="16" fill="transparent"/>`
+      +`<rect x="${hlx}" y="${(y1-hh/2).toFixed(1)}" width="${hw}" height="${hh}" fill="transparent"/>`
+      +`<rect x="${rightX-8}" y="${(y2-hh/2).toFixed(1)}" width="${hw}" height="${hh}" fill="transparent"/>`
       +`<line x1="${leftX}" y1="${y1.toFixed(1)}" x2="${rightX}" y2="${y2.toFixed(1)}" stroke="transparent" stroke-width="11"/></g>`; });
   s+=`</svg>`;
   const box=$("#slope");box.innerHTML=s;
@@ -708,6 +713,7 @@ function renderSlope(){
     g.onmouseleave=()=>{if(hov)hov.style.opacity=0;hideTip();};});
 }
 renderSlope();
+let _slpM=window.innerWidth<=640;window.addEventListener('resize',()=>{const m=window.innerWidth<=640;if(m!==_slpM){_slpM=m;renderSlope();}});
 
 /* division standings */
 Object.entries(DIV).forEach(([dname,teams],idx)=>{
